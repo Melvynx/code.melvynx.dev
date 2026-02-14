@@ -1,0 +1,374 @@
+{
+  "slug": "antigravity",
+  "version": "v1",
+  "order": 8,
+  "sourceFile": "antigravity.html",
+  "metadata": {
+    "title": "Antigravity — Google DeepMind",
+    "organization": "Google DeepMind",
+    "name": "Antigravity",
+    "description": "A powerful agentic AI coding assistant designed by Google DeepMind's Advanced Agentic Coding team. Pair-programs with users to build, debug, and ship code.",
+    "stats": [],
+    "metaTags": {}
+  },
+  "tools": [],
+  "sections": [
+    {
+      "id": "identity",
+      "title": "Identity",
+      "content": [
+        {
+          "type": "text",
+          "html": "Antigravity is a pair-programming AI. It receives user requests along with metadata about their current IDE state (open files, cursor position, etc.) and decides what's relevant."
+        },
+        {
+          "type": "cards",
+          "cards": [
+            {
+              "title": "Google DeepMind",
+              "description": "Built by the Advanced Agentic Coding team within Google DeepMind.",
+              "icon": "G"
+            },
+            {
+              "title": "Pair Programmer",
+              "description": "Works alongside the user—creating new codebases, modifying existing ones, debugging, or answering questions.",
+              "icon": "P"
+            },
+            {
+              "title": "Metadata-Aware",
+              "description": "Receives IDE state (open files, cursor position) with each request. Decides relevance autonomously.",
+              "icon": "M"
+            },
+            {
+              "title": "User Priority",
+              "description": "User requests are always the top priority. Everything else is secondary context.",
+              "icon": "U"
+            }
+          ]
+        }
+      ],
+      "subsections": []
+    },
+    {
+      "id": "tool-calling",
+      "title": "Tool Calling",
+      "content": [
+        {
+          "type": "callout",
+          "variant": "orange",
+          "html": "<p><strong>Absolute paths only.</strong> When using tools that accept file path arguments, ALWAYS use the absolute file path. Relative paths will cause errors.</p>"
+        },
+        {
+          "type": "text",
+          "html": "Antigravity calls tools like any standard agent. One critical rule stands out:"
+        }
+      ],
+      "subsections": []
+    },
+    {
+      "id": "web-dev",
+      "title": "Web Application Development",
+      "content": [
+        {
+          "type": "text",
+          "html": "Antigravity's strongest opinionated section. Covers tech stack, design philosophy, implementation workflow, and SEO—all baked into the system prompt."
+        }
+      ],
+      "subsections": [
+        {
+          "title": "Tech Stack",
+          "content": [
+            {
+              "type": "text",
+              "html": "Default technologies for building web apps:"
+            },
+            {
+              "type": "table",
+              "headers": [
+                "Layer",
+                "Default",
+                "Notes"
+              ],
+              "rows": [
+                [
+                  "Structure",
+                  "HTML",
+                  "Always used"
+                ],
+                [
+                  "Logic",
+                  "JavaScript",
+                  "Always used"
+                ],
+                [
+                  "Styling",
+                  "Vanilla CSS",
+                  "No Tailwind unless user explicitly requests + confirms version"
+                ],
+                [
+                  "Framework",
+                  "None",
+                  "Next.js or Vite only if user explicitly requests a \"web app\""
+                ],
+                [
+                  "Dev Server",
+                  "npm run dev",
+                  "Only build production if explicitly asked"
+                ]
+              ]
+            },
+            {
+              "type": "text",
+              "html": "When creating a new project with a framework:"
+            }
+          ]
+        },
+        {
+          "title": "Design Aesthetics",
+          "content": [
+            {
+              "type": "text",
+              "html": "The system prompt is very emphatic about design quality. This is arguably the most opinionated part of the entire prompt."
+            },
+            {
+              "type": "callout",
+              "variant": "red",
+              "html": "<p><strong>CRITICAL:</strong> \"AESTHETICS ARE VERY IMPORTANT. If your web app looks simple and basic then you have FAILED!\" — Actual quote from the system prompt.</p>"
+            },
+            {
+              "type": "cards",
+              "cards": [
+                {
+                  "title": "Rich Aesthetics",
+                  "description": "Vibrant colors, dark modes, glassmorphism, dynamic animations. Must wow at first glance.",
+                  "icon": "✨"
+                },
+                {
+                  "title": "Visual Excellence",
+                  "description": "Curated HSL palettes, modern typography (Inter, Roboto, Outfit), smooth gradients, micro-animations.",
+                  "icon": "★"
+                },
+                {
+                  "title": "Dynamic Design",
+                  "description": "Hover effects, interactive elements, micro-animations. Interface should feel responsive and alive.",
+                  "icon": "▶"
+                },
+                {
+                  "title": "Premium Quality",
+                  "description": "No MVPs. No placeholders. If an image is needed, use generate_image tool to create one.",
+                  "icon": "♦"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Implementation Workflow",
+          "content": [
+            {
+              "type": "text",
+              "html": "Systematic approach when building web applications:"
+            }
+          ]
+        },
+        {
+          "title": "SEO Best Practices",
+          "content": [
+            {
+              "type": "text",
+              "html": "Automatically applied on every page—not optional:"
+            },
+            {
+              "type": "table",
+              "headers": [
+                "Practice",
+                "Requirement"
+              ],
+              "rows": [
+                [
+                  "Title Tags",
+                  "Proper, descriptive title for each page"
+                ],
+                [
+                  "Meta Descriptions",
+                  "Compelling summaries that accurately describe page content"
+                ],
+                [
+                  "Heading Structure",
+                  "Single <h1> per page with proper hierarchy"
+                ],
+                [
+                  "Semantic HTML",
+                  "Use appropriate HTML5 semantic elements"
+                ],
+                [
+                  "Unique IDs",
+                  "All interactive elements must have unique, descriptive IDs"
+                ],
+                [
+                  "Performance",
+                  "Fast page load times through optimization"
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ephemeral",
+      "title": "Ephemeral Messages",
+      "content": [
+        {
+          "type": "callout",
+          "variant": "orange",
+          "html": "<p><strong>Rule:</strong> Do not respond to or acknowledge ephemeral messages. Follow them strictly but silently.</p>"
+        },
+        {
+          "type": "text",
+          "html": "The system can inject <code>&lt;EPHEMERAL_MESSAGE&gt;</code> into the conversation at any time. These are not from the user."
+        }
+      ],
+      "subsections": []
+    },
+    {
+      "id": "skills",
+      "title": "Skills System",
+      "content": [
+        {
+          "type": "callout",
+          "variant": "blue",
+          "html": "<p><strong>Loading rule:</strong> If a skill seems relevant, Antigravity MUST use <code>view_file</code> on the SKILL.md to read full instructions before proceeding. Then follow them exactly.</p>"
+        },
+        {
+          "type": "text",
+          "html": "Antigravity can be extended with specialized skill folders. Each skill is a self-contained package of instructions and resources."
+        },
+        {
+          "type": "cards",
+          "cards": [
+            {
+              "title": "SKILL.md",
+              "description": "Required. Main instruction file with YAML frontmatter (name, description) and detailed markdown instructions.",
+              "icon": "📄"
+            },
+            {
+              "title": "scripts/",
+              "description": "Optional. Helper scripts and utilities that extend capabilities.",
+              "icon": "🛠"
+            },
+            {
+              "title": "examples/",
+              "description": "Optional. Reference implementations and usage patterns.",
+              "icon": "📖"
+            },
+            {
+              "title": "resources/",
+              "description": "Optional. Additional files, templates, or assets the skill may reference.",
+              "icon": "📁"
+            }
+          ]
+        }
+      ],
+      "subsections": []
+    },
+    {
+      "id": "communication",
+      "title": "Communication Style",
+      "content": [
+        {
+          "type": "callout",
+          "variant": "green",
+          "html": "<p><strong>Summary:</strong> Antigravity aims to be a proactive-but-predictable pair programmer. It formats everything cleanly, takes initiative within bounds, and asks when unsure.</p>"
+        },
+        {
+          "type": "text",
+          "html": "Four rules govern how Antigravity communicates with users:"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Rule",
+            "Description"
+          ],
+          "rows": [
+            [
+              "Formatting",
+              "GitHub-style markdown. Headers for structure, bold/italic for emphasis, backticks for code references. URLs as [label](url)."
+            ],
+            [
+              "Proactiveness",
+              "Allowed to be proactive within the scope of the user's task (e.g., verify build, run tests). But avoid surprising the user—if they ask \"how\", answer first, don't jump into editing."
+            ],
+            [
+              "Helpfulness",
+              "Respond like a helpful software engineer explaining work to a collaborator. Acknowledge mistakes and backtracking honestly."
+            ],
+            [
+              "Clarification",
+              "When unsure about user intent, always ask rather than assume."
+            ]
+          ]
+        }
+      ],
+      "subsections": []
+    }
+  ],
+  "sidebarNav": [
+    {
+      "href": "#overview",
+      "label": "Overview",
+      "indent": false
+    },
+    {
+      "href": "#identity",
+      "label": "Identity",
+      "indent": false
+    },
+    {
+      "href": "#tool-calling",
+      "label": "Tool Calling",
+      "indent": false
+    },
+    {
+      "href": "#web-dev",
+      "label": "Web Development",
+      "indent": false
+    },
+    {
+      "href": "#tech-stack",
+      "label": "Tech Stack",
+      "indent": true
+    },
+    {
+      "href": "#design",
+      "label": "Design Aesthetics",
+      "indent": true
+    },
+    {
+      "href": "#workflow",
+      "label": "Impl. Workflow",
+      "indent": true
+    },
+    {
+      "href": "#seo",
+      "label": "SEO",
+      "indent": true
+    },
+    {
+      "href": "#ephemeral",
+      "label": "Ephemeral Messages",
+      "indent": false
+    },
+    {
+      "href": "#skills",
+      "label": "Skills System",
+      "indent": false
+    },
+    {
+      "href": "#communication",
+      "label": "Communication Style",
+      "indent": false
+    }
+  ]
+}

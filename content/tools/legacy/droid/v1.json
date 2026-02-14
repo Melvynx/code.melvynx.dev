@@ -1,0 +1,806 @@
+{
+  "slug": "droid",
+  "version": "v1",
+  "order": 7,
+  "sourceFile": "droid.html",
+  "metadata": {
+    "title": "Droid — Factory AI",
+    "organization": "Factory AI",
+    "name": "Droid",
+    "description": "AI Software Engineering Agent by Factory",
+    "stats": [],
+    "metaTags": {}
+  },
+  "tools": [
+    {
+      "name": "Read",
+      "description": "Read file contents. Supports images (JPEG, PNG up to 5MB). Truncates at 2400 lines by default.",
+      "type": "file_path (required), offset, limit"
+    },
+    {
+      "name": "LS",
+      "description": "List directory contents with optional pattern-based filtering and ignore patterns.",
+      "type": "directory_path, ignorePatterns[]"
+    },
+    {
+      "name": "Execute",
+      "description": "Execute shell commands with timeout. Each command runs in isolated shell. Supports background processes.",
+      "type": "command (required), timeout, fireAndForget, riskLevel"
+    },
+    {
+      "name": "Edit",
+      "description": "Find and replace text in files. Requires Read first. old_str must be unique or use change_all.",
+      "type": "file_path, old_str, new_str (required), change_all"
+    },
+    {
+      "name": "Grep",
+      "description": "High-performance file search using ripgrep. Supports regex, file types, globs, context lines.",
+      "type": "pattern (required), path, type, glob_pattern, output_mode, context"
+    },
+    {
+      "name": "Glob",
+      "description": "File path search with multiple patterns and exclusions. Uses ripgrep backend.",
+      "type": "patterns[] (required), folder, excludePatterns[]"
+    },
+    {
+      "name": "Create",
+      "description": "Create new files with specified content.",
+      "type": "file_path, content (required)"
+    },
+    {
+      "name": "ExitSpecMode",
+      "description": "Present implementation plan for approval when in spec mode. Supports multiple options.",
+      "type": "plan (required), title, optionNames[]"
+    },
+    {
+      "name": "WebSearch",
+      "description": "Search web for factual information. Supports category and domain filtering.",
+      "type": "query (required), category, includeDomains[], numResults, type"
+    },
+    {
+      "name": "TodoWrite",
+      "description": "Maintain structured todo list for coding sessions. Max 50 items, 500 chars each.",
+      "type": "todos (required)"
+    },
+    {
+      "name": "FetchUrl",
+      "description": "Scrape content from user-provided URLs. Supports integrations (Google Docs, Notion, Linear, GitHub, etc).",
+      "type": "url (required)"
+    },
+    {
+      "name": "GenerateDroid",
+      "description": "Generate custom droid configuration using AI.",
+      "type": "description (required), location (project/personal)"
+    },
+    {
+      "name": "Task",
+      "description": "Launch autonomous agents for complex multi-step tasks. Stateless invocation.",
+      "type": "subagent_type, description, prompt (required)"
+    },
+    {
+      "name": "MultiEdit",
+      "description": "Multiple edits to files (mentioned in system prompt)",
+      "type": "file_path, edits[]"
+    }
+  ],
+  "sections": [
+    {
+      "id": "",
+      "title": "Identity & Branding",
+      "content": [],
+      "subsections": []
+    },
+    {
+      "id": "stats",
+      "title": "Quick Stats",
+      "content": [
+        {
+          "type": "cards",
+          "cards": [
+            {
+              "title": "",
+              "description": "",
+              "icon": ""
+            },
+            {
+              "title": "",
+              "description": "",
+              "icon": ""
+            },
+            {
+              "title": "",
+              "description": "",
+              "icon": ""
+            },
+            {
+              "title": "",
+              "description": "",
+              "icon": ""
+            }
+          ]
+        }
+      ],
+      "subsections": []
+    },
+    {
+      "id": "tools",
+      "title": "All Tools",
+      "content": [
+        {
+          "type": "text",
+          "html": "Fourteen tools power the Droid system. Here's each one in detail."
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Tool",
+            "Description",
+            "Key Parameters"
+          ],
+          "rows": [
+            [
+              "Read",
+              "Read file contents. Supports images (JPEG, PNG up to 5MB). Truncates at 2400 lines by default.",
+              "file_path (required), offset, limit"
+            ],
+            [
+              "LS",
+              "List directory contents with optional pattern-based filtering and ignore patterns.",
+              "directory_path, ignorePatterns[]"
+            ],
+            [
+              "Execute",
+              "Execute shell commands with timeout. Each command runs in isolated shell. Supports background processes.",
+              "command (required), timeout, fireAndForget, riskLevel"
+            ],
+            [
+              "Edit",
+              "Find and replace text in files. Requires Read first. old_str must be unique or use change_all.",
+              "file_path, old_str, new_str (required), change_all"
+            ],
+            [
+              "Grep",
+              "High-performance file search using ripgrep. Supports regex, file types, globs, context lines.",
+              "pattern (required), path, type, glob_pattern, output_mode, context"
+            ],
+            [
+              "Glob",
+              "File path search with multiple patterns and exclusions. Uses ripgrep backend.",
+              "patterns[] (required), folder, excludePatterns[]"
+            ],
+            [
+              "Create",
+              "Create new files with specified content.",
+              "file_path, content (required)"
+            ],
+            [
+              "ExitSpecMode",
+              "Present implementation plan for approval when in spec mode. Supports multiple options.",
+              "plan (required), title, optionNames[]"
+            ],
+            [
+              "WebSearch",
+              "Search web for factual information. Supports category and domain filtering.",
+              "query (required), category, includeDomains[], numResults, type"
+            ],
+            [
+              "TodoWrite",
+              "Maintain structured todo list for coding sessions. Max 50 items, 500 chars each.",
+              "todos (required)"
+            ],
+            [
+              "FetchUrl",
+              "Scrape content from user-provided URLs. Supports integrations (Google Docs, Notion, Linear, GitHub, etc).",
+              "url (required)"
+            ],
+            [
+              "GenerateDroid",
+              "Generate custom droid configuration using AI.",
+              "description (required), location (project/personal)"
+            ],
+            [
+              "Task",
+              "Launch autonomous agents for complex multi-step tasks. Stateless invocation.",
+              "subagent_type, description, prompt (required)"
+            ],
+            [
+              "MultiEdit",
+              "Multiple edits to files (mentioned in system prompt)",
+              "file_path, edits[]"
+            ]
+          ]
+        }
+      ],
+      "subsections": []
+    },
+    {
+      "id": "custom-droids",
+      "title": "Custom Droids Available",
+      "content": [
+        {
+          "type": "text",
+          "html": "Droid directories: Project (<code>.factory/droids</code>) and Personal (<code>~/.factory/droids</code>)"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Droid",
+            "Description",
+            "Model",
+            "Location"
+          ],
+          "rows": [
+            [
+              "code-reviewer",
+              "Expert code reviewer for PR analysis. Security, logic, clean code, feature-specific behavior. Returns structured findings table.",
+              "haiku",
+              "personal"
+            ],
+            [
+              "Snipper",
+              "Fast code modification agent. Optimized for speed with small outputs.",
+              "haiku",
+              "personal"
+            ],
+            [
+              "explore-codebase",
+              "Explore codebase to realize features.",
+              "haiku",
+              "personal"
+            ],
+            [
+              "websearch",
+              "Quick web search agent.",
+              "haiku",
+              "personal"
+            ],
+            [
+              "code-simplifier",
+              "Simplifies and refines code for clarity, consistency, maintainability. Preserves functionality.",
+              "haiku",
+              "personal"
+            ],
+            [
+              "fix-grammar",
+              "Fix grammar and spelling errors in single file while preserving formatting.",
+              "haiku",
+              "personal"
+            ],
+            [
+              "action",
+              "Conditional action executor - performs actions only when specific conditions are met.",
+              "haiku",
+              "personal"
+            ],
+            [
+              "explore-docs",
+              "Research library documentation using Context7 MCP.",
+              "haiku",
+              "personal"
+            ]
+          ]
+        }
+      ],
+      "subsections": []
+    },
+    {
+      "id": "fetchurl",
+      "title": "FetchUrl Supported Integrations",
+      "content": [
+        {
+          "type": "table",
+          "headers": [
+            "Integration",
+            "URL Pattern"
+          ],
+          "rows": [
+            [
+              "Google Docs",
+              "docs.google.com/document/d/{doc-id}"
+            ],
+            [
+              "Notion Pages",
+              "notion.so/{workspace}/{page-id}"
+            ],
+            [
+              "Linear Issues",
+              "linear.app/{workspace}/issue/{id}"
+            ],
+            [
+              "GitHub Pull Requests",
+              "github.com/{owner}/{repo}/pull/{number}"
+            ],
+            [
+              "GitHub Issues",
+              "github.com/{owner}/{repo}/issues/{number}"
+            ],
+            [
+              "GitHub Workflow Runs",
+              "github.com/{owner}/{repo}/actions/runs/{id}"
+            ],
+            [
+              "Sentry Issues",
+              "{org}.sentry.io/issues/{id}"
+            ],
+            [
+              "GitLab Merge Requests",
+              "gitlab.com/{group}/{project}/-/merge_requests/{number}"
+            ],
+            [
+              "Jira Tickets",
+              "{instance}.atlassian.net/browse/{key}"
+            ],
+            [
+              "PagerDuty Incidents",
+              "{subdomain}.pagerduty.com/incidents/{id}"
+            ],
+            [
+              "Slack Thread URLs",
+              "{workspace}.slack.com/archives/{channel}/p{timestamp}"
+            ]
+          ]
+        }
+      ],
+      "subsections": [
+        {
+          "title": "Blocked URLs",
+          "content": []
+        }
+      ]
+    },
+    {
+      "id": "websearch",
+      "title": "WebSearch Categories",
+      "content": [
+        {
+          "type": "text",
+          "html": "Available category filters for the WebSearch tool:"
+        }
+      ],
+      "subsections": []
+    },
+    {
+      "id": "execute",
+      "title": "Execute Tool",
+      "content": [
+        {
+          "type": "callout",
+          "variant": "orange",
+          "html": "<p><strong>Each Execute runs in a NEW, ISOLATED shell.</strong> Nothing persists:</p>"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Level",
+            "Description",
+            "Examples"
+          ],
+          "rows": [
+            [
+              "LOW",
+              "Read-only operations, no side effects",
+              "echo, pwd, whoami, date, cat, git status, git log, git diff, ls"
+            ],
+            [
+              "MEDIUM",
+              "Significant but recoverable side effects",
+              "touch, mkdir, mv, cp, npm install, pip install, git commit, make"
+            ],
+            [
+              "HIGH",
+              "Security implications, irreversible changes",
+              "sudo commands, rm -rf, curl | bash, git push, database migrations"
+            ]
+          ]
+        }
+      ],
+      "subsections": [
+        {
+          "title": "Risk Levels",
+          "content": [
+            {
+              "type": "table",
+              "headers": [
+                "Level",
+                "Description",
+                "Examples"
+              ],
+              "rows": [
+                [
+                  "LOW",
+                  "Read-only operations, no side effects",
+                  "echo, pwd, whoami, date, cat, git status, git log, git diff, ls"
+                ],
+                [
+                  "MEDIUM",
+                  "Significant but recoverable side effects",
+                  "touch, mkdir, mv, cp, npm install, pip install, git commit, make"
+                ],
+                [
+                  "HIGH",
+                  "Security implications, irreversible changes",
+                  "sudo commands, rm -rf, curl | bash, git push, database migrations"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Shell Isolation",
+          "content": [
+            {
+              "type": "callout",
+              "variant": "orange",
+              "html": "<p><strong>Each Execute runs in a NEW, ISOLATED shell.</strong> Nothing persists:</p>"
+            }
+          ]
+        },
+        {
+          "title": "Python Package Management",
+          "content": []
+        },
+        {
+          "title": "Path Quoting",
+          "content": [
+            {
+              "type": "callout",
+              "variant": "blue",
+              "html": "<p><strong>Always quote paths with spaces or special characters:</strong> ( ) [ ]</p>\n          <p>Correct: <code>cd \"/Users/name/My Documents\"</code></p>\n          <p>Incorrect: <code>cd /Users/name/My Documents</code></p>"
+            }
+          ]
+        },
+        {
+          "title": "Output Limits",
+          "content": []
+        },
+        {
+          "title": "Background Processes",
+          "content": []
+        }
+      ]
+    },
+    {
+      "id": "guidelines",
+      "title": "Core Guidelines & Rules",
+      "content": [],
+      "subsections": [
+        {
+          "title": "Response Guidelines",
+          "content": []
+        },
+        {
+          "title": "Coding Conventions",
+          "content": []
+        },
+        {
+          "title": "Testing & Verification",
+          "content": []
+        },
+        {
+          "title": "Tool Usage Preferences",
+          "content": []
+        }
+      ]
+    },
+    {
+      "id": "git",
+      "title": "Git Safety Guidelines",
+      "content": [],
+      "subsections": [
+        {
+          "title": "Commit Process",
+          "content": []
+        },
+        {
+          "title": "Pull Request Process",
+          "content": []
+        }
+      ]
+    },
+    {
+      "id": "todo",
+      "title": "TodoWrite Guidelines",
+      "content": [
+        {
+          "type": "callout",
+          "variant": "orange",
+          "html": "<p><strong>Mark completed ONLY when FULLY done.</strong> Keep in_progress if errors/blockers remain. Never mark completed if tests fail, implementation partial, errors unresolved.</p>"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "State",
+            "Meaning"
+          ],
+          "rows": [
+            [
+              "pending",
+              "Not started"
+            ],
+            [
+              "in_progress",
+              "Currently working (limit ONE at a time)"
+            ],
+            [
+              "completed",
+              "Finished"
+            ]
+          ]
+        }
+      ],
+      "subsections": [
+        {
+          "title": "When to Use",
+          "content": []
+        },
+        {
+          "title": "When NOT to Use",
+          "content": []
+        },
+        {
+          "title": "Task States",
+          "content": [
+            {
+              "type": "table",
+              "headers": [
+                "State",
+                "Meaning"
+              ],
+              "rows": [
+                [
+                  "pending",
+                  "Not started"
+                ],
+                [
+                  "in_progress",
+                  "Currently working (limit ONE at a time)"
+                ],
+                [
+                  "completed",
+                  "Finished"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Completion Rules",
+          "content": [
+            {
+              "type": "callout",
+              "variant": "orange",
+              "html": "<p><strong>Mark completed ONLY when FULLY done.</strong> Keep in_progress if errors/blockers remain. Never mark completed if tests fail, implementation partial, errors unresolved.</p>"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "task",
+      "title": "Task Tool (Subagents)",
+      "content": [],
+      "subsections": [
+        {
+          "title": "When NOT to Use",
+          "content": []
+        },
+        {
+          "title": "Usage Notes",
+          "content": []
+        }
+      ]
+    },
+    {
+      "id": "security",
+      "title": "Security Rules",
+      "content": [
+        {
+          "type": "callout",
+          "variant": "red",
+          "html": "<p><strong>Critical:</strong> NEVER run destructive commands like <code>rm -rf /</code> or <code>rm -rf ~</code>. If secrets detected in code: STOP and warn user immediately.</p>"
+        }
+      ],
+      "subsections": []
+    },
+    {
+      "id": "",
+      "title": "Artifacts Directory Protection",
+      "content": [
+        {
+          "type": "callout",
+          "variant": "red",
+          "html": "<p><strong>NEVER</strong> create, edit, or delete files in <code>~/.factory/artifacts/</code> or subdirectories. Reserved for system-generated outputs (e.g., full content for truncated results). MAY read/view/analyze files in this directory if needed.</p>"
+        }
+      ],
+      "subsections": []
+    },
+    {
+      "id": "spec-mode",
+      "title": "Spec Mode",
+      "content": [
+        {
+          "type": "callout",
+          "variant": "purple",
+          "html": "<p><strong>ExitSpecMode</strong> is used when in spec mode with a concrete implementation plan ready for review.</p>"
+        }
+      ],
+      "subsections": [
+        {
+          "title": "When to Use",
+          "content": []
+        },
+        {
+          "title": "When NOT to Use",
+          "content": []
+        },
+        {
+          "title": "Features",
+          "content": []
+        }
+      ]
+    },
+    {
+      "id": "",
+      "title": "Read Tool Details",
+      "content": [],
+      "subsections": []
+    },
+    {
+      "id": "",
+      "title": "Grep Tool Output Modes",
+      "content": [
+        {
+          "type": "table",
+          "headers": [
+            "Mode",
+            "Behavior"
+          ],
+          "rows": [
+            [
+              "file_paths",
+              "Returns only matching file paths (default, fast)"
+            ],
+            [
+              "content",
+              "Returns matching lines with optional context, line numbers, formatting"
+            ]
+          ]
+        }
+      ],
+      "subsections": [
+        {
+          "title": "Supported Parameters",
+          "content": []
+        }
+      ]
+    },
+    {
+      "id": "system-info",
+      "title": "System Information",
+      "content": [
+        {
+          "type": "table",
+          "headers": [
+            "Component",
+            "Version / Status"
+          ],
+          "rows": [
+            [
+              "OS",
+              "darwin 24.6.0"
+            ],
+            [
+              "Git Version",
+              "2.50.1"
+            ],
+            [
+              "Ripgrep Version",
+              "15.1.0"
+            ],
+            [
+              "GitHub CLI",
+              "2.83.2"
+            ],
+            [
+              "cURL Version",
+              "8.7.1"
+            ],
+            [
+              "FFmpeg Version",
+              "7.1"
+            ],
+            [
+              "Python Version",
+              "3.13.7"
+            ],
+            [
+              "wget",
+              "Not installed"
+            ],
+            [
+              "jupyter",
+              "Not installed"
+            ],
+            [
+              "Docker",
+              "Not running (no .dockerenv)"
+            ]
+          ]
+        }
+      ],
+      "subsections": []
+    }
+  ],
+  "sidebarNav": [
+    {
+      "href": "#identity",
+      "label": "Identity",
+      "indent": false
+    },
+    {
+      "href": "#stats",
+      "label": "Stats",
+      "indent": false
+    },
+    {
+      "href": "#tools",
+      "label": "All Tools",
+      "indent": false
+    },
+    {
+      "href": "#custom-droids",
+      "label": "Custom Droids",
+      "indent": false
+    },
+    {
+      "href": "#fetchurl",
+      "label": "FetchUrl",
+      "indent": false
+    },
+    {
+      "href": "#websearch",
+      "label": "WebSearch",
+      "indent": false
+    },
+    {
+      "href": "#execute",
+      "label": "Execute",
+      "indent": false
+    },
+    {
+      "href": "#guidelines",
+      "label": "Guidelines",
+      "indent": false
+    },
+    {
+      "href": "#git",
+      "label": "Git Safety",
+      "indent": true
+    },
+    {
+      "href": "#todo",
+      "label": "TodoWrite",
+      "indent": true
+    },
+    {
+      "href": "#task",
+      "label": "Task / Subagents",
+      "indent": true
+    },
+    {
+      "href": "#security",
+      "label": "Security",
+      "indent": true
+    },
+    {
+      "href": "#spec-mode",
+      "label": "Spec Mode",
+      "indent": false
+    },
+    {
+      "href": "#system-info",
+      "label": "System Info",
+      "indent": false
+    }
+  ]
+}

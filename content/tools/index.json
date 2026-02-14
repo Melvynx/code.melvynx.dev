@@ -1,0 +1,62 @@
+[
+  {
+    "slug": "claude-code",
+    "name": "Claude Code",
+    "organization": "Anthropic",
+    "versions": [
+      {
+        "version": "v1",
+        "name": "Claude Code — Complete Flat Structure",
+        "description": "Every tool, skill, system prompt rule, memory behavior, and environment detail extracted from a live Claude Code session — structured as flat, searchable arrays.",
+        "stats": [
+          { "value": "29", "label": "Tools" },
+          { "value": "16", "label": "Agent Types" },
+          { "value": "61", "label": "Skills" },
+          { "value": "3", "label": "MCP Servers" },
+          { "value": "12", "label": "System Prompt Sections" }
+        ],
+        "toolCount": 29
+      }
+    ]
+  },
+  {
+    "slug": "codex",
+    "name": "Codex",
+    "organization": "OpenAI",
+    "versions": [
+      {
+        "version": "v1",
+        "name": "Codex — Complete Flat Structure",
+        "description": "Every tool, skill, system prompt rule, personality trait, and environment detail extracted from a live Codex session — structured as flat, searchable arrays.",
+        "stats": [
+          { "value": "14", "label": "Tools" },
+          { "value": "0", "label": "Agent Types" },
+          { "value": "10", "label": "Skills" },
+          { "value": "3", "label": "MCP Servers" },
+          { "value": "14", "label": "System Prompt Sections" }
+        ],
+        "toolCount": 14
+      }
+    ]
+  },
+  {
+    "slug": "cursor",
+    "name": "Cursor",
+    "organization": "Anysphere",
+    "versions": [
+      {
+        "version": "v1",
+        "name": "Cursor — Complete Flat Structure",
+        "description": "Every tool, system prompt rule, memory behavior, and IDE integration detail extracted from a live Cursor session — structured as flat, searchable arrays.",
+        "stats": [
+          { "value": "14", "label": "Tools" },
+          { "value": "0", "label": "Agent Types" },
+          { "value": "0", "label": "Skills" },
+          { "value": "0", "label": "MCP Servers" },
+          { "value": "7", "label": "System Prompt Sections" }
+        ],
+        "toolCount": 14
+      }
+    ]
+  }
+]

@@ -1,0 +1,1473 @@
+{
+  "slug": "codex",
+  "version": "cli",
+  "order": 4,
+  "sourceFile": "codex.html",
+  "metadata": {
+    "title": "Codex CLI — Complete System Documentation",
+    "organization": "OpenAI",
+    "name": "Codex CLI",
+    "description": "OpenAI's Terminal-Based Agentic Coding Assistant — Complete System Documentation",
+    "stats": [],
+    "metaTags": {}
+  },
+  "tools": [
+    {
+      "name": "local_shell",
+      "description": "Execute shell commands in the terminal (command string)",
+      "type": "Function"
+    },
+    {
+      "name": "shell",
+      "description": "Execute shell commands (array-based command format)",
+      "type": "Function"
+    },
+    {
+      "name": "apply_patch",
+      "description": "Apply file patches (add, update, delete, move files)",
+      "type": "FunctionFreeform"
+    },
+    {
+      "name": "update_plan",
+      "description": "Create and update task plans with step tracking",
+      "type": "Function"
+    },
+    {
+      "name": "read_file",
+      "description": "Read file contents from the filesystem",
+      "type": "Function"
+    },
+    {
+      "name": "view_image",
+      "description": "View and analyze image files",
+      "type": "Function"
+    },
+    {
+      "name": "list_dir",
+      "description": "List directory contents",
+      "type": "Function"
+    },
+    {
+      "name": "grep_files",
+      "description": "Search for patterns in files",
+      "type": "Function"
+    },
+    {
+      "name": "spawn_agent",
+      "description": "Create a worker agent with initial prompt (requires agent_type)",
+      "type": ""
+    },
+    {
+      "name": "send_input",
+      "description": "Send messages to worker agents (queued unless interrupt=true)",
+      "type": ""
+    },
+    {
+      "name": "wait",
+      "description": "Wait for one or more worker agents to finish; returns when at least one completes",
+      "type": ""
+    },
+    {
+      "name": "close_agent",
+      "description": "Close a worker agent when fully done",
+      "type": ""
+    },
+    {
+      "name": "list_mcp_resources",
+      "description": "List available MCP resources from connected servers",
+      "type": ""
+    },
+    {
+      "name": "list_mcp_resource_templates",
+      "description": "List parameterized resource templates",
+      "type": ""
+    },
+    {
+      "name": "read_mcp_resource",
+      "description": "Read specific MCP resource (requires server name + URI)",
+      "type": ""
+    },
+    {
+      "name": "MCP server tools",
+      "description": "Dynamic tools from connected MCP servers",
+      "type": ""
+    },
+    {
+      "name": "*** Add File: <path>",
+      "description": "Create a new file. Every following line is a + line",
+      "type": ""
+    },
+    {
+      "name": "*** Update File: <path>",
+      "description": "Patch an existing file in place (optionally with rename)",
+      "type": ""
+    },
+    {
+      "name": "*** Delete File: <path>",
+      "description": "Remove an existing file. Nothing follows",
+      "type": ""
+    },
+    {
+      "name": "*** Move to: <path>",
+      "description": "Rename/move a file (used with Update File)",
+      "type": ""
+    }
+  ],
+  "sections": [
+    {
+      "id": "identity",
+      "title": "Identity & Overview",
+      "content": [
+        {
+          "type": "callout",
+          "variant": "purple",
+          "html": "<p><strong>What is Codex CLI?</strong> Codex CLI is an <strong>open-source agentic coding interface</strong> led by OpenAI. It runs as a terminal-based coding assistant that is precise, safe, and helpful. The name \"Codex\" refers to this open-source agentic coding interface, <em>not</em> the old Codex language model built by OpenAI.</p>"
+        },
+        {
+          "type": "text",
+          "html": "It runs on the user's computer and can:"
+        },
+        {
+          "type": "cards",
+          "cards": [
+            {
+              "title": "",
+              "description": "",
+              "icon": ""
+            },
+            {
+              "title": "",
+              "description": "",
+              "icon": ""
+            },
+            {
+              "title": "",
+              "description": "",
+              "icon": ""
+            },
+            {
+              "title": "",
+              "description": "",
+              "icon": ""
+            },
+            {
+              "title": "",
+              "description": "",
+              "icon": ""
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Variant",
+            "Description"
+          ],
+          "rows": [
+            [
+              "GPT-5",
+              "Base model for general Codex operations"
+            ],
+            [
+              "GPT-5.1",
+              "Enhanced autonomy and persistence features"
+            ],
+            [
+              "GPT-5.2",
+              "Latest variant with parallel tool calls and enhanced planning"
+            ],
+            [
+              "GPT-5.1-codex-max",
+              "Enhanced constraints for frontend tasks and code review"
+            ]
+          ]
+        }
+      ],
+      "subsections": [
+        {
+          "title": "Model Variants",
+          "content": [
+            {
+              "type": "table",
+              "headers": [
+                "Variant",
+                "Description"
+              ],
+              "rows": [
+                [
+                  "GPT-5",
+                  "Base model for general Codex operations"
+                ],
+                [
+                  "GPT-5.1",
+                  "Enhanced autonomy and persistence features"
+                ],
+                [
+                  "GPT-5.2",
+                  "Latest variant with parallel tool calls and enhanced planning"
+                ],
+                [
+                  "GPT-5.1-codex-max",
+                  "Enhanced constraints for frontend tasks and code review"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Personality & Tone",
+          "content": []
+        }
+      ]
+    },
+    {
+      "id": "capabilities",
+      "title": "Core Capabilities",
+      "content": [
+        {
+          "type": "text",
+          "html": "Repositories can contain <code>AGENTS.md</code> files anywhere within the directory structure. These files provide instructions or tips for the agent:"
+        }
+      ],
+      "subsections": [
+        {
+          "title": "AGENTS.md Specification",
+          "content": [
+            {
+              "type": "text",
+              "html": "Repositories can contain <code>AGENTS.md</code> files anywhere within the directory structure. These files provide instructions or tips for the agent:"
+            }
+          ]
+        },
+        {
+          "title": "Scoping Rules",
+          "content": []
+        }
+      ]
+    },
+    {
+      "id": "tools",
+      "title": "Tools",
+      "content": [],
+      "subsections": [
+        {
+          "title": "Core — Function Tools",
+          "content": [
+            {
+              "type": "table",
+              "headers": [
+                "Tool",
+                "Description",
+                "Type"
+              ],
+              "rows": [
+                [
+                  "local_shell",
+                  "Execute shell commands in the terminal (command string)",
+                  "Function"
+                ],
+                [
+                  "shell",
+                  "Execute shell commands (array-based command format)",
+                  "Function"
+                ],
+                [
+                  "apply_patch",
+                  "Apply file patches (add, update, delete, move files)",
+                  "Function Freeform"
+                ],
+                [
+                  "update_plan",
+                  "Create and update task plans with step tracking",
+                  "Function"
+                ],
+                [
+                  "read_file",
+                  "Read file contents from the filesystem",
+                  "Function"
+                ],
+                [
+                  "view_image",
+                  "View and analyze image files",
+                  "Function"
+                ],
+                [
+                  "list_dir",
+                  "List directory contents",
+                  "Function"
+                ],
+                [
+                  "grep_files",
+                  "Search for patterns in files",
+                  "Function"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Collaboration — Orchestrator Mode",
+          "content": [
+            {
+              "type": "table",
+              "headers": [
+                "Tool",
+                "Description"
+              ],
+              "rows": [
+                [
+                  "spawn_agent",
+                  "Create a worker agent with initial prompt (requires agent_type)"
+                ],
+                [
+                  "send_input",
+                  "Send messages to worker agents (queued unless interrupt=true)"
+                ],
+                [
+                  "wait",
+                  "Wait for one or more worker agents to finish; returns when at least one completes"
+                ],
+                [
+                  "close_agent",
+                  "Close a worker agent when fully done"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "title": "MCP — Model Context Protocol Tools",
+          "content": [
+            {
+              "type": "table",
+              "headers": [
+                "Tool",
+                "Description"
+              ],
+              "rows": [
+                [
+                  "list_mcp_resources",
+                  "List available MCP resources from connected servers"
+                ],
+                [
+                  "list_mcp_resource_templates",
+                  "List parameterized resource templates"
+                ],
+                [
+                  "read_mcp_resource",
+                  "Read specific MCP resource (requires server name + URI)"
+                ],
+                [
+                  "MCP server tools",
+                  "Dynamic tools from connected MCP servers"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "title": "apply_patch — Syntax",
+          "content": [
+            {
+              "type": "text",
+              "html": "The patch language is a stripped-down, file-oriented diff format. It is a <strong>FREEFORM</strong> tool — do not wrap the patch in JSON."
+            }
+          ]
+        },
+        {
+          "title": "Operations",
+          "content": [
+            {
+              "type": "table",
+              "headers": [
+                "Header",
+                "Description"
+              ],
+              "rows": [
+                [
+                  "*** Add File: <path>",
+                  "Create a new file. Every following line is a + line"
+                ],
+                [
+                  "*** Update File: <path>",
+                  "Patch an existing file in place (optionally with rename)"
+                ],
+                [
+                  "*** Delete File: <path>",
+                  "Remove an existing file. Nothing follows"
+                ],
+                [
+                  "*** Move to: <path>",
+                  "Rename/move a file (used with Update File)"
+                ]
+              ]
+            },
+            {
+              "type": "callout",
+              "variant": "orange",
+              "html": "<p><strong>Important:</strong> You must prefix new lines with <code>+</code> even when creating a new file.</p>"
+            }
+          ]
+        },
+        {
+          "title": "Shell Command Guidelines",
+          "content": []
+        }
+      ]
+    },
+    {
+      "id": "agents",
+      "title": "Multi-Agent System",
+      "content": [
+        {
+          "type": "callout",
+          "variant": "purple",
+          "html": "<p><strong>Orchestrator Role (Codex Orchestrator, GPT-5):</strong> The orchestrator is the interface between the user and the workers. It understands tasks, decomposes them, delegates well-scoped work, coordinates execution, monitors progress, resolves conflicts, and integrates results.</p>"
+        }
+      ],
+      "subsections": [
+        {
+          "title": "Core Invariants",
+          "content": [
+            {
+              "type": "callout",
+              "variant": "orange",
+              "html": "<p><strong>Never stop monitoring workers.</strong> Do not rush workers — be patient. Do not return early — task must be fully accomplished and verified.</p>"
+            }
+          ]
+        },
+        {
+          "title": "Worker Execution Semantics",
+          "content": []
+        },
+        {
+          "title": "Interrupt Semantics",
+          "content": []
+        },
+        {
+          "title": "Multi-Agent Workflow",
+          "content": []
+        },
+        {
+          "title": "Collaboration Rules",
+          "content": []
+        }
+      ]
+    },
+    {
+      "id": "sandbox",
+      "title": "Sandbox & Approvals",
+      "content": [
+        {
+          "type": "table",
+          "headers": [
+            "Mode",
+            "Description",
+            "Network"
+          ],
+          "rows": [
+            [
+              "read-only",
+              "Only permits reading files",
+              "Configurable"
+            ],
+            [
+              "workspace-write",
+              "Read anywhere, write to cwd and writable_roots. Editing files in other directories requires approval.",
+              "Configurable"
+            ],
+            [
+              "danger-full-access",
+              "No filesystem sandboxing — all commands permitted",
+              "Configurable"
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Policy",
+            "Behavior"
+          ],
+          "rows": [
+            [
+              "never",
+              "Non-interactive mode. NEVER ask for approval. Must persist and work around constraints. Do utmost best to finish and validate work before yielding. If paired with danger-full-access, take full advantage. May add tests/scripts to validate work (remove before yielding)."
+            ],
+            [
+              "on-failure",
+              "Allow all commands in sandbox. Failures are escalated to user for approval to run without sandbox."
+            ],
+            [
+              "on-request",
+              "Commands run in sandbox by default. Agent can specify escalation with sandbox_permissions: \"require_escalated\" and justification. Do not message user before requesting approval — proceed directly with parameters."
+            ],
+            [
+              "unless-trusted",
+              "Escalate most commands for approval. Only a limited allowlist of safe “read” commands runs without approval."
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Value",
+            "Description"
+          ],
+          "rows": [
+            [
+              "use_default",
+              "Run with configured sandbox (default)"
+            ],
+            [
+              "require_escalated",
+              "Request to run outside sandbox"
+            ]
+          ]
+        }
+      ],
+      "subsections": [
+        {
+          "title": "Sandbox Modes",
+          "content": [
+            {
+              "type": "table",
+              "headers": [
+                "Mode",
+                "Description",
+                "Network"
+              ],
+              "rows": [
+                [
+                  "read-only",
+                  "Only permits reading files",
+                  "Configurable"
+                ],
+                [
+                  "workspace-write",
+                  "Read anywhere, write to cwd and writable_roots. Editing files in other directories requires approval.",
+                  "Configurable"
+                ],
+                [
+                  "danger-full-access",
+                  "No filesystem sandboxing — all commands permitted",
+                  "Configurable"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Approval Policies",
+          "content": [
+            {
+              "type": "table",
+              "headers": [
+                "Policy",
+                "Behavior"
+              ],
+              "rows": [
+                [
+                  "never",
+                  "Non-interactive mode. NEVER ask for approval. Must persist and work around constraints. Do utmost best to finish and validate work before yielding. If paired with danger-full-access, take full advantage. May add tests/scripts to validate work (remove before yielding)."
+                ],
+                [
+                  "on-failure",
+                  "Allow all commands in sandbox. Failures are escalated to user for approval to run without sandbox."
+                ],
+                [
+                  "on-request",
+                  "Commands run in sandbox by default. Agent can specify escalation with sandbox_permissions: \"require_escalated\" and justification. Do not message user before requesting approval — proceed directly with parameters."
+                ],
+                [
+                  "unless-trusted",
+                  "Escalate most commands for approval. Only a limited allowlist of safe “read” commands runs without approval."
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "title": "When to Request Approval (on-request mode)",
+          "content": []
+        },
+        {
+          "title": "Sandbox Permissions Parameter",
+          "content": [
+            {
+              "type": "table",
+              "headers": [
+                "Value",
+                "Description"
+              ],
+              "rows": [
+                [
+                  "use_default",
+                  "Run with configured sandbox (default)"
+                ],
+                [
+                  "require_escalated",
+                  "Request to run outside sandbox"
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "config",
+      "title": "Configuration",
+      "content": [
+        {
+          "type": "table",
+          "headers": [
+            "Setting",
+            "Type",
+            "Values"
+          ],
+          "rows": [
+            [
+              "sandbox_mode",
+              "SandboxMode",
+              "read-only, workspace-write, danger-full-access"
+            ],
+            [
+              "approval_policy",
+              "AskForApproval",
+              "never, on-failure, on-request, unless-trusted"
+            ],
+            [
+              "web_search_mode",
+              "WebSearchMode",
+              "disabled, cached, live"
+            ],
+            [
+              "trust_level",
+              "TrustLevel",
+              "trusted, untrusted"
+            ],
+            [
+              "verbosity",
+              "Verbosity",
+              "low, medium, high"
+            ],
+            [
+              "reasoning_summary",
+              "ReasoningSummary",
+              "auto, concise, detailed, none"
+            ],
+            [
+              "reasoning_effort",
+              "ReasoningEffort",
+              "Controls reasoning depth on GPT-5 models"
+            ],
+            [
+              "alt_screen_mode",
+              "AltScreenMode",
+              "auto, always, never"
+            ],
+            [
+              "collaboration_mode",
+              "CollaborationMode",
+              "plan, collaborate, execute, custom"
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Type",
+            "Description"
+          ],
+          "rows": [
+            [
+              "stdio",
+              "Command-based process communication (command, args, env)"
+            ],
+            [
+              "streamable_http",
+              "HTTP-based with url and optional bearer_token"
+            ]
+          ]
+        }
+      ],
+      "subsections": [
+        {
+          "title": "Core Config Types",
+          "content": [
+            {
+              "type": "table",
+              "headers": [
+                "Setting",
+                "Type",
+                "Values"
+              ],
+              "rows": [
+                [
+                  "sandbox_mode",
+                  "SandboxMode",
+                  "read-only, workspace-write, danger-full-access"
+                ],
+                [
+                  "approval_policy",
+                  "AskForApproval",
+                  "never, on-failure, on-request, unless-trusted"
+                ],
+                [
+                  "web_search_mode",
+                  "WebSearchMode",
+                  "disabled, cached, live"
+                ],
+                [
+                  "trust_level",
+                  "TrustLevel",
+                  "trusted, untrusted"
+                ],
+                [
+                  "verbosity",
+                  "Verbosity",
+                  "low, medium, high"
+                ],
+                [
+                  "reasoning_summary",
+                  "ReasoningSummary",
+                  "auto, concise, detailed, none"
+                ],
+                [
+                  "reasoning_effort",
+                  "ReasoningEffort",
+                  "Controls reasoning depth on GPT-5 models"
+                ],
+                [
+                  "alt_screen_mode",
+                  "AltScreenMode",
+                  "auto, always, never"
+                ],
+                [
+                  "collaboration_mode",
+                  "CollaborationMode",
+                  "plan, collaborate, execute, custom"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "title": "MCP Server Configuration",
+          "content": []
+        },
+        {
+          "title": "MCP Transport Types",
+          "content": [
+            {
+              "type": "table",
+              "headers": [
+                "Type",
+                "Description"
+              ],
+              "rows": [
+                [
+                  "stdio",
+                  "Command-based process communication (command, args, env)"
+                ],
+                [
+                  "streamable_http",
+                  "HTTP-based with url and optional bearer_token"
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "slash-commands",
+      "title": "Slash Commands & Keyboard Shortcuts",
+      "content": [
+        {
+          "type": "text",
+          "html": "You can define your own <code>/</code> commands with custom prompts. More info: <a href=\"https://developers.openai.com/codex/guides/slash-commands#create-your-own-slash-commands-with-custom-prompts\" style=\"color: var(--accent);\">developers.openai.com/codex/guides/slash-commands</a>"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Command",
+            "Description"
+          ],
+          "rows": [
+            [
+              "/compact",
+              "Summarize conversation history and free up context"
+            ],
+            [
+              "/new",
+              "Start a fresh session (previous stays in history)"
+            ],
+            [
+              "/feedback",
+              "Send logs to maintainers when something looks off"
+            ],
+            [
+              "/model",
+              "Switch models or reasoning effort quickly"
+            ],
+            [
+              "/approvals",
+              "Control when Codex asks for confirmation"
+            ],
+            [
+              "/review",
+              "Get a code review of current changes"
+            ],
+            [
+              "/skills",
+              "List available skills or ask Codex to use one"
+            ],
+            [
+              "/status",
+              "See current model, approvals, and token usage"
+            ],
+            [
+              "/fork",
+              "Branch the current chat into a new thread"
+            ],
+            [
+              "/init",
+              "Create an AGENTS.md with project-specific guidance"
+            ],
+            [
+              "/mcp",
+              "List configured MCP tools"
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Key",
+            "Action"
+          ],
+          "rows": [
+            [
+              "!",
+              "Run any shell command directly (e.g., !ls)"
+            ],
+            [
+              "/",
+              "Open command popup"
+            ],
+            [
+              "Tab",
+              "Autocomplete slash commands and saved prompts; queue message instead of sending"
+            ],
+            [
+              "Esc",
+              "Step back and edit last message (when composer empty)"
+            ],
+            [
+              "Enter",
+              "Confirm/Send immediately"
+            ],
+            [
+              "Ctrl+V",
+              "Paste image to attach to next message"
+            ]
+          ]
+        }
+      ],
+      "subsections": [
+        {
+          "title": "Slash Commands",
+          "content": [
+            {
+              "type": "table",
+              "headers": [
+                "Command",
+                "Description"
+              ],
+              "rows": [
+                [
+                  "/compact",
+                  "Summarize conversation history and free up context"
+                ],
+                [
+                  "/new",
+                  "Start a fresh session (previous stays in history)"
+                ],
+                [
+                  "/feedback",
+                  "Send logs to maintainers when something looks off"
+                ],
+                [
+                  "/model",
+                  "Switch models or reasoning effort quickly"
+                ],
+                [
+                  "/approvals",
+                  "Control when Codex asks for confirmation"
+                ],
+                [
+                  "/review",
+                  "Get a code review of current changes"
+                ],
+                [
+                  "/skills",
+                  "List available skills or ask Codex to use one"
+                ],
+                [
+                  "/status",
+                  "See current model, approvals, and token usage"
+                ],
+                [
+                  "/fork",
+                  "Branch the current chat into a new thread"
+                ],
+                [
+                  "/init",
+                  "Create an AGENTS.md with project-specific guidance"
+                ],
+                [
+                  "/mcp",
+                  "List configured MCP tools"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Keyboard Shortcuts",
+          "content": [
+            {
+              "type": "table",
+              "headers": [
+                "Key",
+                "Action"
+              ],
+              "rows": [
+                [
+                  "!",
+                  "Run any shell command directly (e.g., !ls)"
+                ],
+                [
+                  "/",
+                  "Open command popup"
+                ],
+                [
+                  "Tab",
+                  "Autocomplete slash commands and saved prompts; queue message instead of sending"
+                ],
+                [
+                  "Esc",
+                  "Step back and edit last message (when composer empty)"
+                ],
+                [
+                  "Enter",
+                  "Confirm/Send immediately"
+                ],
+                [
+                  "Ctrl+V",
+                  "Paste image to attach to next message"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "title": "CLI Commands",
+          "content": []
+        },
+        {
+          "title": "Custom Slash Commands",
+          "content": [
+            {
+              "type": "text",
+              "html": "You can define your own <code>/</code> commands with custom prompts. More info: <a href=\"https://developers.openai.com/codex/guides/slash-commands#create-your-own-slash-commands-with-custom-prompts\" style=\"color: var(--accent);\">developers.openai.com/codex/guides/slash-commands</a>"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "prompts",
+      "title": "System Prompts",
+      "content": [
+        {
+          "type": "callout",
+          "variant": "blue",
+          "html": "<p><strong>Prompt Location:</strong> All prompts are located in: <code>codex-rs/core/</code></p>"
+        },
+        {
+          "type": "text",
+          "html": "Located in <code>protocol/src/prompts/permissions/</code>:"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "File",
+            "Purpose"
+          ],
+          "rows": [
+            [
+              "prompt.md",
+              "Default agent prompt for Codex CLI"
+            ],
+            [
+              "gpt_5_1_prompt.md",
+              "GPT-5.1 specific variant with enhanced autonomy"
+            ],
+            [
+              "gpt_5_2_prompt.md",
+              "GPT-5.2 variant with parallel tool calls"
+            ],
+            [
+              "gpt_5_codex_prompt.md",
+              "General Codex prompt"
+            ],
+            [
+              "gpt-5.1-codex-max_prompt.md",
+              "GPT-5.1 enhanced constraints (frontend, code review)"
+            ],
+            [
+              "gpt-5.2-codex_prompt.md",
+              "GPT-5.2 enhanced variant"
+            ],
+            [
+              "prompt_with_apply_patch_instructions.md",
+              "Prompt with detailed apply_patch specifications"
+            ],
+            [
+              "review_prompt.md",
+              "Code review specific prompt with JSON output schema"
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "headers": [
+            "File",
+            "Purpose"
+          ],
+          "rows": [
+            [
+              "templates/agents/orchestrator.md",
+              "Multi-agent orchestration prompt"
+            ],
+            [
+              "templates/compact/prompt.md",
+              "Context checkpoint compaction for handoff summaries"
+            ],
+            [
+              "templates/collab/experimental_prompt.md",
+              "Collaborative multi-agent experimental features"
+            ]
+          ]
+        }
+      ],
+      "subsections": [
+        {
+          "title": "Core Prompt Files",
+          "content": [
+            {
+              "type": "table",
+              "headers": [
+                "File",
+                "Purpose"
+              ],
+              "rows": [
+                [
+                  "prompt.md",
+                  "Default agent prompt for Codex CLI"
+                ],
+                [
+                  "gpt_5_1_prompt.md",
+                  "GPT-5.1 specific variant with enhanced autonomy"
+                ],
+                [
+                  "gpt_5_2_prompt.md",
+                  "GPT-5.2 variant with parallel tool calls"
+                ],
+                [
+                  "gpt_5_codex_prompt.md",
+                  "General Codex prompt"
+                ],
+                [
+                  "gpt-5.1-codex-max_prompt.md",
+                  "GPT-5.1 enhanced constraints (frontend, code review)"
+                ],
+                [
+                  "gpt-5.2-codex_prompt.md",
+                  "GPT-5.2 enhanced variant"
+                ],
+                [
+                  "prompt_with_apply_patch_instructions.md",
+                  "Prompt with detailed apply_patch specifications"
+                ],
+                [
+                  "review_prompt.md",
+                  "Code review specific prompt with JSON output schema"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Template Prompts",
+          "content": [
+            {
+              "type": "table",
+              "headers": [
+                "File",
+                "Purpose"
+              ],
+              "rows": [
+                [
+                  "templates/agents/orchestrator.md",
+                  "Multi-agent orchestration prompt"
+                ],
+                [
+                  "templates/compact/prompt.md",
+                  "Context checkpoint compaction for handoff summaries"
+                ],
+                [
+                  "templates/collab/experimental_prompt.md",
+                  "Collaborative multi-agent experimental features"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Permission Prompts",
+          "content": [
+            {
+              "type": "text",
+              "html": "Located in <code>protocol/src/prompts/permissions/</code>:"
+            },
+            {
+              "type": "callout",
+              "variant": "blue",
+              "html": "<p><strong>Prompt Location:</strong> All prompts are located in: <code>codex-rs/core/</code></p>"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "guidelines",
+      "title": "Guidelines & Policies",
+      "content": [
+        {
+          "type": "callout",
+          "variant": "orange",
+          "html": "<p><strong>Core principle:</strong> Keep going until query is completely resolved before yielding. Persist even when function calls fail. Do NOT guess or make up answers.</p>"
+        }
+      ],
+      "subsections": [
+        {
+          "title": "Task Execution Rules",
+          "content": [
+            {
+              "type": "callout",
+              "variant": "orange",
+              "html": "<p><strong>Core principle:</strong> Keep going until query is completely resolved before yielding. Persist even when function calls fail. Do NOT guess or make up answers.</p>"
+            }
+          ]
+        },
+        {
+          "title": "Coding Guidelines",
+          "content": []
+        },
+        {
+          "title": "Editing Constraints (GPT-5.1+)",
+          "content": []
+        },
+        {
+          "title": "Frontend Task Guidelines",
+          "content": [
+            {
+              "type": "callout",
+              "variant": "purple",
+              "html": "<p><strong>Avoid “AI slop”</strong> or safe, average-looking layouts. Aim for intentional, bold, and surprising interfaces.</p>"
+            }
+          ]
+        },
+        {
+          "title": "Plan Tool Usage",
+          "content": []
+        },
+        {
+          "title": "Validation Philosophy",
+          "content": []
+        },
+        {
+          "title": "Progress Updates",
+          "content": []
+        }
+      ]
+    },
+    {
+      "id": "review",
+      "title": "Code Review System",
+      "content": [
+        {
+          "type": "text",
+          "html": "When asked for a “review”, prioritize:"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Priority",
+            "Description"
+          ],
+          "rows": [
+            [
+              "[P0]",
+              "Drop everything to fix. Blocking release/operations. Universal issues only."
+            ],
+            [
+              "[P1]",
+              "Urgent. Should be addressed in the next cycle."
+            ],
+            [
+              "[P2]",
+              "Normal. To be fixed eventually."
+            ],
+            [
+              "[P3]",
+              "Low. Nice to have."
+            ]
+          ]
+        }
+      ],
+      "subsections": [
+        {
+          "title": "Review Mindset",
+          "content": [
+            {
+              "type": "text",
+              "html": "When asked for a “review”, prioritize:"
+            },
+            {
+              "type": "text",
+              "html": "Findings must be the primary focus. Keep summaries brief and only after enumerating issues."
+            }
+          ]
+        },
+        {
+          "title": "Finding Criteria",
+          "content": []
+        },
+        {
+          "title": "Priority Levels",
+          "content": [
+            {
+              "type": "table",
+              "headers": [
+                "Priority",
+                "Description"
+              ],
+              "rows": [
+                [
+                  "[P0]",
+                  "Drop everything to fix. Blocking release/operations. Universal issues only."
+                ],
+                [
+                  "[P1]",
+                  "Urgent. Should be addressed in the next cycle."
+                ],
+                [
+                  "[P2]",
+                  "Normal. To be fixed eventually."
+                ],
+                [
+                  "[P3]",
+                  "Low. Nice to have."
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Comment Guidelines",
+          "content": []
+        },
+        {
+          "title": "Review Output Format (JSON)",
+          "content": []
+        }
+      ]
+    },
+    {
+      "id": "formatting",
+      "title": "Output Formatting",
+      "content": [
+        {
+          "type": "callout",
+          "variant": "orange",
+          "html": "<p><strong>Avoid these output patterns:</strong></p>"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Change Size",
+            "Format"
+          ],
+          "rows": [
+            [
+              "Tiny/small (≤10 lines)",
+              "2–5 sentences or ≤3 bullets. No headings. 0–1 short snippet (≤3 lines)"
+            ],
+            [
+              "Medium (single area/few files)",
+              "≤6 bullets or 6–10 sentences. At most 1–2 snippets (≤8 lines each)"
+            ],
+            [
+              "Large (multi-file)",
+              "Summarize per file with 1–2 bullets. Avoid inline code (still ≤2 snippets)"
+            ]
+          ]
+        }
+      ],
+      "subsections": [
+        {
+          "title": "General Principles",
+          "content": []
+        },
+        {
+          "title": "Section Headers",
+          "content": []
+        },
+        {
+          "title": "Bullets",
+          "content": []
+        },
+        {
+          "title": "Monospace",
+          "content": []
+        },
+        {
+          "title": "File References",
+          "content": []
+        },
+        {
+          "title": "Verbosity Rules",
+          "content": [
+            {
+              "type": "table",
+              "headers": [
+                "Change Size",
+                "Format"
+              ],
+              "rows": [
+                [
+                  "Tiny/small (≤10 lines)",
+                  "2–5 sentences or ≤3 bullets. No headings. 0–1 short snippet (≤3 lines)"
+                ],
+                [
+                  "Medium (single area/few files)",
+                  "≤6 bullets or 6–10 sentences. At most 1–2 snippets (≤8 lines each)"
+                ],
+                [
+                  "Large (multi-file)",
+                  "Summarize per file with 1–2 bullets. Avoid inline code (still ≤2 snippets)"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Don'ts",
+          "content": [
+            {
+              "type": "callout",
+              "variant": "orange",
+              "html": "<p><strong>Avoid these output patterns:</strong></p>"
+            }
+          ]
+        },
+        {
+          "title": "Code Changes Response Structure",
+          "content": []
+        }
+      ]
+    }
+  ],
+  "sidebarNav": [
+    {
+      "href": "#identity",
+      "label": "Identity",
+      "indent": false
+    },
+    {
+      "href": "#capabilities",
+      "label": "Capabilities",
+      "indent": false
+    },
+    {
+      "href": "#tools",
+      "label": "Tools",
+      "indent": false
+    },
+    {
+      "href": "#core-tools",
+      "label": "Core Tools",
+      "indent": true
+    },
+    {
+      "href": "#collab-tools",
+      "label": "Collaboration",
+      "indent": true
+    },
+    {
+      "href": "#mcp-tools",
+      "label": "MCP Tools",
+      "indent": true
+    },
+    {
+      "href": "#apply-patch",
+      "label": "apply_patch",
+      "indent": true
+    },
+    {
+      "href": "#agents",
+      "label": "Multi-Agent",
+      "indent": false
+    },
+    {
+      "href": "#sandbox",
+      "label": "Sandbox",
+      "indent": false
+    },
+    {
+      "href": "#config",
+      "label": "Configuration",
+      "indent": false
+    },
+    {
+      "href": "#slash-commands",
+      "label": "Slash Commands",
+      "indent": false
+    },
+    {
+      "href": "#prompts",
+      "label": "System Prompts",
+      "indent": false
+    },
+    {
+      "href": "#guidelines",
+      "label": "Guidelines",
+      "indent": false
+    },
+    {
+      "href": "#review",
+      "label": "Code Review",
+      "indent": false
+    },
+    {
+      "href": "#formatting",
+      "label": "Output Formatting",
+      "indent": false
+    }
+  ]
+}

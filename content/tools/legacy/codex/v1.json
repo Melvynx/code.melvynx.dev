@@ -1,0 +1,526 @@
+{
+  "slug": "codex",
+  "version": "v1",
+  "order": 5,
+  "sourceFile": "codex-v1.html",
+  "metadata": {
+    "title": "Codex — OpenAI",
+    "organization": "OpenAI",
+    "name": "Codex",
+    "description": "Single-page overview of the assistant configuration. Sanitized version.",
+    "stats": [],
+    "metaTags": {}
+  },
+  "tools": [
+    {
+      "name": "functions.shell_command",
+      "description": "Run shell commands in the workspace",
+      "type": "Sandboxed by default; can request escalation"
+    },
+    {
+      "name": "functions.list_mcp_resources",
+      "description": "List MCP resources",
+      "type": "Server-scoped resource inventory"
+    },
+    {
+      "name": "functions.list_mcp_resource_templates",
+      "description": "List MCP resource templates",
+      "type": "Parameterized resources"
+    },
+    {
+      "name": "functions.read_mcp_resource",
+      "description": "Read MCP resources",
+      "type": "Requires server name + URI"
+    },
+    {
+      "name": "functions.update_plan",
+      "description": "Publish/update a task plan",
+      "type": "Multi-step only; one in-progress at a time"
+    },
+    {
+      "name": "functions.view_image",
+      "description": "View local images",
+      "type": "Only with explicit file paths"
+    },
+    {
+      "name": "functions.mcp__context7__resolve-library-id",
+      "description": "Resolve library name to Context7 ID",
+      "type": "Required before query-docs"
+    },
+    {
+      "name": "functions.mcp__context7__query-docs",
+      "description": "Query Context7 documentation",
+      "type": "Max 3 calls per question"
+    },
+    {
+      "name": "functions.mcp__exa__get_code_context_exa",
+      "description": "Fetch code context for programming tasks",
+      "type": "Must use for code-related queries"
+    },
+    {
+      "name": "functions.mcp__exa__web_search_exa",
+      "description": "Web search via Exa",
+      "type": "Live crawl supported"
+    },
+    {
+      "name": "functions.mcp__shadcn__get_add_command_for_items",
+      "description": "Generate shadcn CLI add command",
+      "type": "Registry item utility"
+    },
+    {
+      "name": "functions.mcp__shadcn__get_audit_checklist",
+      "description": "Post-generation checklist",
+      "type": "Use after creating components"
+    },
+    {
+      "name": "functions.mcp__shadcn__get_item_examples_from_registries",
+      "description": "Find usage examples",
+      "type": "Returns full implementation"
+    },
+    {
+      "name": "functions.mcp__shadcn__get_project_registries",
+      "description": "Read components.json registries",
+      "type": "Errors if missing"
+    },
+    {
+      "name": "functions.mcp__shadcn__list_items_in_registries",
+      "description": "List registry items",
+      "type": "Pagination supported"
+    },
+    {
+      "name": "functions.mcp__shadcn__search_items_in_registries",
+      "description": "Search registry items",
+      "type": "Fuzzy matching"
+    },
+    {
+      "name": "functions.mcp__shadcn__view_items_in_registries",
+      "description": "View registry item details",
+      "type": "Use examples tool for demos"
+    },
+    {
+      "name": "functions.apply_patch",
+      "description": "Edit files via patch",
+      "type": "FREEFORM patch grammar"
+    },
+    {
+      "name": "multi_tool_use.parallel",
+      "description": "Run tools in parallel",
+      "type": "Only functions.* tools"
+    }
+  ],
+  "sections": [
+    {
+      "id": "identity",
+      "title": "Identity & Branding",
+      "content": [
+        {
+          "type": "cards",
+          "cards": [
+            {
+              "title": "Agent Name",
+              "description": "Codex (coding agent)",
+              "icon": ""
+            },
+            {
+              "title": "Model Line",
+              "description": "GPT-5-based (as stated in developer instructions)",
+              "icon": ""
+            },
+            {
+              "title": "Role",
+              "description": "CLI coding assistant operating in a sandboxed workspace",
+              "icon": ""
+            },
+            {
+              "title": "Execution Context",
+              "description": "Local shell via tool calls; file edits within writable roots",
+              "icon": ""
+            }
+          ]
+        }
+      ],
+      "subsections": []
+    },
+    {
+      "id": "access",
+      "title": "Access & Redactions",
+      "content": [
+        {
+          "type": "callout",
+          "variant": "blue",
+          "html": "<p>I cannot reveal or reproduce the full system prompt, hidden policies, or private configuration beyond what is already provided in the visible chat messages. Those sections are redacted.</p>"
+        }
+      ],
+      "subsections": []
+    },
+    {
+      "id": "capabilities",
+      "title": "Capabilities Snapshot",
+      "content": [
+        {
+          "type": "cards",
+          "cards": [
+            {
+              "title": "File Editing",
+              "description": "Read/write in workspace; apply_patch for edits",
+              "icon": ""
+            },
+            {
+              "title": "Shell Commands",
+              "description": "Sandboxed by default; escalated runs require approval",
+              "icon": ""
+            },
+            {
+              "title": "Tooling",
+              "description": "MCP resources, web search (restricted), code context, UI component registries",
+              "icon": ""
+            },
+            {
+              "title": "Output",
+              "description": "Plain text responses; HTML/CSS/JS when requested",
+              "icon": ""
+            }
+          ]
+        }
+      ],
+      "subsections": []
+    },
+    {
+      "id": "tools",
+      "title": "Tools",
+      "content": [
+        {
+          "type": "table",
+          "headers": [
+            "Tool",
+            "Purpose",
+            "Notes"
+          ],
+          "rows": [
+            [
+              "functions.shell_command",
+              "Run shell commands in the workspace",
+              "Sandboxed by default; can request escalation"
+            ],
+            [
+              "functions.list_mcp_resources",
+              "List MCP resources",
+              "Server-scoped resource inventory"
+            ],
+            [
+              "functions.list_mcp_resource_templates",
+              "List MCP resource templates",
+              "Parameterized resources"
+            ],
+            [
+              "functions.read_mcp_resource",
+              "Read MCP resources",
+              "Requires server name + URI"
+            ],
+            [
+              "functions.update_plan",
+              "Publish/update a task plan",
+              "Multi-step only; one in-progress at a time"
+            ],
+            [
+              "functions.view_image",
+              "View local images",
+              "Only with explicit file paths"
+            ],
+            [
+              "functions.mcp__context7__resolve-library-id",
+              "Resolve library name to Context7 ID",
+              "Required before query-docs"
+            ],
+            [
+              "functions.mcp__context7__query-docs",
+              "Query Context7 documentation",
+              "Max 3 calls per question"
+            ],
+            [
+              "functions.mcp__exa__get_code_context_exa",
+              "Fetch code context for programming tasks",
+              "Must use for code-related queries"
+            ],
+            [
+              "functions.mcp__exa__web_search_exa",
+              "Web search via Exa",
+              "Live crawl supported"
+            ],
+            [
+              "functions.mcp__shadcn__get_add_command_for_items",
+              "Generate shadcn CLI add command",
+              "Registry item utility"
+            ],
+            [
+              "functions.mcp__shadcn__get_audit_checklist",
+              "Post-generation checklist",
+              "Use after creating components"
+            ],
+            [
+              "functions.mcp__shadcn__get_item_examples_from_registries",
+              "Find usage examples",
+              "Returns full implementation"
+            ],
+            [
+              "functions.mcp__shadcn__get_project_registries",
+              "Read components.json registries",
+              "Errors if missing"
+            ],
+            [
+              "functions.mcp__shadcn__list_items_in_registries",
+              "List registry items",
+              "Pagination supported"
+            ],
+            [
+              "functions.mcp__shadcn__search_items_in_registries",
+              "Search registry items",
+              "Fuzzy matching"
+            ],
+            [
+              "functions.mcp__shadcn__view_items_in_registries",
+              "View registry item details",
+              "Use examples tool for demos"
+            ],
+            [
+              "functions.apply_patch",
+              "Edit files via patch",
+              "FREEFORM patch grammar"
+            ],
+            [
+              "multi_tool_use.parallel",
+              "Run tools in parallel",
+              "Only functions.* tools"
+            ]
+          ]
+        }
+      ],
+      "subsections": []
+    },
+    {
+      "id": "skills",
+      "title": "Skills",
+      "content": [
+        {
+          "type": "table",
+          "headers": [
+            "Skill Name",
+            "Description",
+            "Path"
+          ],
+          "rows": [
+            [
+              "Better Auth Best Practices",
+              "Integrate better-auth for TypeScript projects",
+              "/Users/melvynx/.codex/skills/Better Auth Best Practices/SKILL.md"
+            ],
+            [
+              "Create Auth Skill",
+              "Create auth service for new applications",
+              "/Users/melvynx/.codex/skills/Create Auth Skill/SKILL.md"
+            ],
+            [
+              "vercel-react-best-practices",
+              "React/Next.js performance optimization guidelines",
+              "/Users/melvynx/.codex/skills/vercel-react-best-practices/SKILL.md"
+            ],
+            [
+              "web-design-guidelines",
+              "Review UI code for web interface best practices",
+              "/Users/melvynx/.codex/skills/web-design-guidelines/SKILL.md"
+            ],
+            [
+              "skill-creator",
+              "Guide for creating/updating skills",
+              "/Users/melvynx/.codex/skills/.system/skill-creator/SKILL.md"
+            ],
+            [
+              "skill-installer",
+              "Install skills from curated list or repo path",
+              "/Users/melvynx/.codex/skills/.system/skill-installer/SKILL.md"
+            ]
+          ]
+        }
+      ],
+      "subsections": []
+    },
+    {
+      "id": "agents",
+      "title": "Agents",
+      "content": [
+        {
+          "type": "cards",
+          "cards": [
+            {
+              "title": "Known Agents",
+              "description": "No additional agent roster was provided in the visible chat context.",
+              "icon": ""
+            }
+          ]
+        }
+      ],
+      "subsections": []
+    },
+    {
+      "id": "policies",
+      "title": "Policies & Rules (Visible Context Only)",
+      "content": [
+        {
+          "type": "callout",
+          "variant": "blue",
+          "html": "<p>Additional system policies exist but are not available for disclosure. This section only reflects visible instructions from the developer and user context in this chat.</p>"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Area",
+            "Visible Rules Summary"
+          ],
+          "rows": [
+            [
+              "Editing",
+              "Prefer apply_patch for single-file edits; avoid destructive commands; do not revert unrelated changes"
+            ],
+            [
+              "Planning",
+              "Use plan tool for multi-step tasks; avoid single-step plans; update plan after progress"
+            ],
+            [
+              "Frontend",
+              "Intentional design; avoid default fonts/colors; add motion and textured background; preserve existing design systems"
+            ],
+            [
+              "Security/Access",
+              "Sandboxed shell; escalated permissions require justification and approval"
+            ],
+            [
+              "Output Formatting",
+              "Concise, CLI-friendly text; include file paths as inline code; avoid heavy formatting"
+            ]
+          ]
+        }
+      ],
+      "subsections": []
+    },
+    {
+      "id": "configuration",
+      "title": "Configuration (Visible Context Only)",
+      "content": [
+        {
+          "type": "table",
+          "headers": [
+            "Setting",
+            "Value"
+          ],
+          "rows": [
+            [
+              "cwd",
+              "/Users/melvynx/Developer/models-tests/ide"
+            ],
+            [
+              "shell",
+              "zsh"
+            ],
+            [
+              "writable_roots",
+              "/Users/melvynx/Developer/models-tests/ide; /tmp; /var/folders/7z/5mtgxwxx4zs9ppgzm942gbmh0000gn/T"
+            ],
+            [
+              "sandbox_mode",
+              "workspace-write"
+            ],
+            [
+              "approval_policy",
+              "on-request"
+            ]
+          ]
+        }
+      ],
+      "subsections": []
+    },
+    {
+      "id": "redactions",
+      "title": "Redacted Sections",
+      "content": [
+        {
+          "type": "table",
+          "headers": [
+            "Section",
+            "Status",
+            "Reason"
+          ],
+          "rows": [
+            [
+              "Full system prompt",
+              "Redacted",
+              "Not accessible for disclosure"
+            ],
+            [
+              "Hidden policies & safety rules",
+              "Redacted",
+              "Internal constraints"
+            ],
+            [
+              "Private configuration",
+              "Redacted",
+              "Not exposed in chat context"
+            ]
+          ]
+        }
+      ],
+      "subsections": []
+    }
+  ],
+  "sidebarNav": [
+    {
+      "href": "#overview",
+      "label": "Overview",
+      "indent": false
+    },
+    {
+      "href": "#identity",
+      "label": "Identity",
+      "indent": false
+    },
+    {
+      "href": "#access",
+      "label": "Access",
+      "indent": false
+    },
+    {
+      "href": "#capabilities",
+      "label": "Capabilities",
+      "indent": false
+    },
+    {
+      "href": "#tools",
+      "label": "Tools",
+      "indent": false
+    },
+    {
+      "href": "#skills",
+      "label": "Skills",
+      "indent": false
+    },
+    {
+      "href": "#agents",
+      "label": "Agents",
+      "indent": false
+    },
+    {
+      "href": "#policies",
+      "label": "Policies",
+      "indent": false
+    },
+    {
+      "href": "#configuration",
+      "label": "Configuration",
+      "indent": false
+    },
+    {
+      "href": "#redactions",
+      "label": "Redactions",
+      "indent": false
+    }
+  ]
+}

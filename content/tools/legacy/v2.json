@@ -1,0 +1,1124 @@
+{
+  "slug": "claude-code",
+  "version": "v2",
+  "order": 2,
+  "sourceFile": "claudecode-v2.html",
+  "metadata": {
+    "title": "Claude Code v2 — Complete System Internals",
+    "organization": "Opus 4.6 · claude-opus-4-6",
+    "name": "Claude CodeComplete Internals",
+    "description": "Every detail of the system prompt, tools, agent types, skills, MCP servers, behavioral rules, memory system, and environment—extracted from a live Claude Code session.",
+    "stats": [],
+    "metaTags": {}
+  },
+  "tools": [
+    {
+      "name": "pattern",
+      "description": "Regex pattern to search for",
+      "type": ""
+    },
+    {
+      "name": "path",
+      "description": "File or directory to search in",
+      "type": ""
+    },
+    {
+      "name": "glob",
+      "description": "File filter (e.g. *.js, *.{ts,tsx})",
+      "type": ""
+    },
+    {
+      "name": "type",
+      "description": "File type (e.g. js, py, rust)",
+      "type": ""
+    },
+    {
+      "name": "output_mode",
+      "description": "content | files_with_matches | count",
+      "type": ""
+    },
+    {
+      "name": "-A-B-C",
+      "description": "Context lines after/before/around matches",
+      "type": ""
+    },
+    {
+      "name": "multiline",
+      "description": "Enable cross-line pattern matching",
+      "type": ""
+    },
+    {
+      "name": "-i",
+      "description": "Case insensitive",
+      "type": ""
+    },
+    {
+      "name": "head_limit",
+      "description": "Limit output to first N entries",
+      "type": ""
+    }
+  ],
+  "sections": [
+    {
+      "id": "identity",
+      "title": "Identity & Model",
+      "content": [
+        {
+          "type": "cards",
+          "cards": [
+            {
+              "title": "Claude Code",
+              "description": "Anthropic's official CLI for Claude. An interactive agent for software engineering tasks—solving bugs, adding features, refactoring, explaining code, and more.",
+              "icon": "C"
+            },
+            {
+              "title": "Opus 4.6",
+              "description": "Model ID: claude-opus-4-6. Knowledge cutoff: May 2025. Part of the Claude 4.5/4.6 family. The most capable model available.",
+              "icon": "4.6"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Property",
+            "Value"
+          ],
+          "rows": [
+            [
+              "Name",
+              "Claude Code"
+            ],
+            [
+              "Model",
+              "claude-opus-4-6 (Opus 4.6)"
+            ],
+            [
+              "Knowledge cutoff",
+              "May 2025"
+            ],
+            [
+              "Model family",
+              "Claude 4.5 / 4.6"
+            ],
+            [
+              "Available models for subagents",
+              "sonnet, opus, haiku"
+            ],
+            [
+              "Haiku preference",
+              "Quick, straightforward tasks (minimize cost & latency)"
+            ],
+            [
+              "Default for AI apps",
+              "Latest and most capable Claude models"
+            ],
+            [
+              "Output format",
+              "GitHub-flavored Markdown (CommonMark, monospace font)"
+            ]
+          ]
+        }
+      ],
+      "subsections": []
+    },
+    {
+      "id": "architecture",
+      "title": "Architecture",
+      "content": [
+        {
+          "type": "text",
+          "html": "Claude Code runs as the main agent, with the ability to spawn subagents (one-shot or persistent team members), access MCP servers, invoke skills, and manage persistent memory."
+        }
+      ],
+      "subsections": []
+    },
+    {
+      "id": "system-prompt",
+      "title": "System Prompt — Full Breakdown",
+      "content": [
+        {
+          "type": "text",
+          "html": "The system prompt is divided into multiple sections, each governing different behaviors. Here is every rule, verbatim intent preserved."
+        }
+      ],
+      "subsections": [
+        {
+          "title": "Core Identity Rules",
+          "content": []
+        },
+        {
+          "title": "Doing Tasks — Behavioral Rules",
+          "content": []
+        },
+        {
+          "title": "Executing Actions with Care",
+          "content": [
+            {
+              "type": "callout",
+              "variant": "red",
+              "html": "<p><strong>Measure twice, cut once.</strong> For reversible local actions (editing files, running tests), proceed freely. For hard-to-reverse or shared-system actions, confirm with the user first.</p>"
+            }
+          ]
+        },
+        {
+          "title": "Tone & Style",
+          "content": []
+        }
+      ]
+    },
+    {
+      "id": "tools",
+      "title": "All Tools (27)",
+      "content": [
+        {
+          "type": "text",
+          "html": "Every tool available in this Claude Code session. Grouped by category."
+        }
+      ],
+      "subsections": [
+        {
+          "title": "File Operations",
+          "content": [
+            {
+              "type": "cards",
+              "cards": [
+                {
+                  "title": "Read",
+                  "description": "Read files from the filesystem. Supports text, images (PNG, JPG), PDFs (with page ranges), Jupyter notebooks. Default: up to 2000 lines, truncation at 2000 chars/line. Cat -n format with line numbers starting at 1.",
+                  "icon": "R"
+                },
+                {
+                  "title": "Edit",
+                  "description": "Exact string replacements in files. Requires Read first. Must preserve exact indentation. Fails if old_string is not unique. Use replace_all for renaming across a file.",
+                  "icon": "E"
+                },
+                {
+                  "title": "Write",
+                  "description": "Write/overwrite files. Requires Read first for existing files. Prefers editing over creating new files. Never proactively creates docs/README files.",
+                  "icon": "W"
+                },
+                {
+                  "title": "NotebookEdit",
+                  "description": "Replace, insert, or delete cells in Jupyter notebooks (.ipynb). 0-indexed cell numbers. Supports code and markdown cell types.",
+                  "icon": "N"
+                }
+              ]
+            },
+            {
+              "type": "callout",
+              "variant": "blue",
+              "html": "<p><strong>Critical rule:</strong> Always use dedicated file tools (Read, Edit, Write) instead of Bash with cat, sed, awk, echo, head, tail. Bash is reserved for system commands only.</p>"
+            }
+          ]
+        },
+        {
+          "title": "Search",
+          "content": [
+            {
+              "type": "cards",
+              "cards": [
+                {
+                  "title": "Glob",
+                  "description": "Fast file pattern matching. Supports glob patterns (**/*.js, src/**/*.ts). Returns matching paths sorted by modification time. Use instead of find or ls.",
+                  "icon": "G"
+                },
+                {
+                  "title": "Grep",
+                  "description": "Ripgrep-powered content search. Full regex, glob/type filters. Modes: content, files_with_matches (default), count. Supports multiline matching. Use instead of grep or rg.",
+                  "icon": "G"
+                }
+              ]
+            },
+            {
+              "type": "table",
+              "headers": [
+                "Grep Parameter",
+                "Purpose"
+              ],
+              "rows": [
+                [
+                  "pattern",
+                  "Regex pattern to search for"
+                ],
+                [
+                  "path",
+                  "File or directory to search in"
+                ],
+                [
+                  "glob",
+                  "File filter (e.g. *.js, *.{ts,tsx})"
+                ],
+                [
+                  "type",
+                  "File type (e.g. js, py, rust)"
+                ],
+                [
+                  "output_mode",
+                  "content | files_with_matches | count"
+                ],
+                [
+                  "-A, -B, -C",
+                  "Context lines after/before/around matches"
+                ],
+                [
+                  "multiline",
+                  "Enable cross-line pattern matching"
+                ],
+                [
+                  "-i",
+                  "Case insensitive"
+                ],
+                [
+                  "head_limit",
+                  "Limit output to first N entries"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Execution",
+          "content": [
+            {
+              "type": "cards",
+              "cards": [
+                {
+                  "title": "Bash",
+                  "description": "Execute bash commands with optional timeout (max 600s, default 120s). Working directory persists; shell state does not. Supports background execution. Directory verification required before creating files/dirs.",
+                  "icon": "$"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Agent & Swarm",
+          "content": [
+            {
+              "type": "cards",
+              "cards": [
+                {
+                  "title": "Task",
+                  "description": "Launch specialized subagents. Requires subagent_type. Can join teams with team_name. Supports run_in_background, resume by agent ID, and model selection (sonnet/opus/haiku).",
+                  "icon": "T"
+                },
+                {
+                  "title": "TeamCreate",
+                  "description": "Create a team with shared task list. Creates ~/.claude/teams/{name}/ and ~/.claude/tasks/{name}/.",
+                  "icon": "TC"
+                },
+                {
+                  "title": "TeamDelete",
+                  "description": "Remove team and task directories. Fails if active members remain. Shutdown teammates first.",
+                  "icon": "TD"
+                },
+                {
+                  "title": "SendMessage",
+                  "description": "5 types: message, broadcast, shutdown_request, shutdown_response, plan_approval_response. Only way agents communicate.",
+                  "icon": "SM"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Communication & Interaction",
+          "content": [
+            {
+              "type": "cards",
+              "cards": [
+                {
+                  "title": "AskUserQuestion",
+                  "description": "Ask the user 1-4 questions with 2-4 options each. Users can always select \"Other\" for custom input. Supports multiSelect. Use for preferences, clarification, decisions.",
+                  "icon": "?"
+                },
+                {
+                  "title": "WebFetch",
+                  "description": "Fetch and process URL content with AI. Converts HTML to markdown. 15-min cache. Fails for authenticated/private URLs. Auto-upgrades HTTP to HTTPS.",
+                  "icon": "W"
+                },
+                {
+                  "title": "WebSearch",
+                  "description": "Real-time web search. Must include Sources section with URLs in response. Use current year (2026) in queries. Domain filtering supported.",
+                  "icon": "W"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Task Management",
+          "content": [
+            {
+              "type": "cards",
+              "cards": [
+                {
+                  "title": "TaskCreate",
+                  "description": "Create tasks with subject, description, activeForm. Use for 3+ step tasks. Tasks start as pending with no owner.",
+                  "icon": "+"
+                },
+                {
+                  "title": "TaskList",
+                  "description": "List all tasks: id, subject, status, owner, blockedBy. Use to find available work or check progress.",
+                  "icon": "L"
+                },
+                {
+                  "title": "TaskGet",
+                  "description": "Full task details by ID: description, dependencies, status, blocks, blockedBy.",
+                  "icon": "G"
+                },
+                {
+                  "title": "TaskUpdate",
+                  "description": "Swiss army knife: set owner, status, dependencies (addBlocks/addBlockedBy), description, activeForm. Status: pending → in_progress → completed (or deleted).",
+                  "icon": "U"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Planning & Workflow",
+          "content": [
+            {
+              "type": "cards",
+              "cards": [
+                {
+                  "title": "EnterPlanMode",
+                  "description": "Transition to plan mode for non-trivial implementations. Explore codebase, design approach, get user approval before coding. Use for: new features, multiple approaches, multi-file changes, unclear requirements.",
+                  "icon": "P"
+                },
+                {
+                  "title": "ExitPlanMode",
+                  "description": "Signal plan completion for user review. Only for implementation planning (not research). Plan must be written to plan file first.",
+                  "icon": "X"
+                },
+                {
+                  "title": "Skill",
+                  "description": "Invoke user-configurable skills (slash commands like /commit, /review-pr). Only for skills listed in the skills section.",
+                  "icon": "S"
+                },
+                {
+                  "title": "TaskOutput",
+                  "description": "Retrieve output from background tasks. block=true (default) waits for completion. Works with background shells, async agents, remote sessions.",
+                  "icon": "O"
+                },
+                {
+                  "title": "TaskStop",
+                  "description": "Stop a running background task by ID. Returns success/failure status.",
+                  "icon": "X"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "MCP Server Tools",
+          "content": [
+            {
+              "type": "cards",
+              "cards": [
+                {
+                  "title": "mcp__ide__getDiagnostics",
+                  "description": "Get language diagnostics from VS Code. Optional file URI parameter. Returns diagnostics for specific file or all files.",
+                  "icon": "D"
+                },
+                {
+                  "title": "mcp__ide__executeCode",
+                  "description": "Execute Python code in the Jupyter kernel for the current notebook. State persists across calls unless kernel restarted.",
+                  "icon": "J"
+                }
+              ]
+            },
+            {
+              "type": "cards",
+              "cards": [
+                {
+                  "title": "mcp__exa__web_search_exa",
+                  "description": "Exa AI web search. Types: auto, fast, deep. Live crawl modes: fallback, preferred. Configurable result count and context size.",
+                  "icon": "E"
+                },
+                {
+                  "title": "mcp__exa__get_code_context_exa",
+                  "description": "Exa code context search. Highest quality context for libraries, SDKs, APIs. Mandatory for code-related queries. Token range: 1000-50000.",
+                  "icon": "E"
+                }
+              ]
+            },
+            {
+              "type": "cards",
+              "cards": [
+                {
+                  "title": "mcp__context7__resolve-library-id",
+                  "description": "Resolve package name to Context7-compatible library ID. Must be called before query-docs. Max 3 calls per question. Returns best match by relevance, coverage, reputation.",
+                  "icon": "C7"
+                },
+                {
+                  "title": "mcp__context7__query-docs",
+                  "description": "Query up-to-date documentation from Context7. Requires library ID from resolve step. Max 3 calls per question.",
+                  "icon": "C7"
+                }
+              ]
+            },
+            {
+              "type": "cards",
+              "cards": [
+                {
+                  "title": "ListMcpResourcesTool",
+                  "description": "List available resources from configured MCP servers. Optional server filter.",
+                  "icon": "MR"
+                },
+                {
+                  "title": "ReadMcpResourceTool",
+                  "description": "Read a specific resource from an MCP server by server name and resource URI.",
+                  "icon": "MR"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "agents",
+      "title": "Agent Types (16)",
+      "content": [
+        {
+          "type": "callout",
+          "variant": "orange",
+          "html": "<p><strong>Critical rule:</strong> Read-only agents (Explore, Plan) cannot edit files. Never assign them implementation work. Use Snipper or general-purpose for coding tasks.</p>"
+        },
+        {
+          "type": "text",
+          "html": "Each <code>subagent_type</code> for the Task tool has specific capabilities and tool access."
+        },
+        {
+          "type": "cards",
+          "cards": [
+            {
+              "title": "Snipper",
+              "description": "Fast code edits. All tools. Optimized for speed with minimal output.",
+              "icon": "S"
+            },
+            {
+              "title": "general-purpose",
+              "description": "Full access to everything. Research + implementation. Complex multi-step tasks.",
+              "icon": "GP"
+            },
+            {
+              "title": "Explore",
+              "description": "Fast read-only codebase exploration. Find files, search code, answer questions. Cannot edit. Thoroughness levels: quick/medium/very thorough.",
+              "icon": "Ex"
+            },
+            {
+              "title": "Plan",
+              "description": "Read-only architect. Designs implementation plans, identifies critical files, considers trade-offs.",
+              "icon": "Pl"
+            }
+          ]
+        },
+        {
+          "type": "cards",
+          "cards": [
+            {
+              "title": "Bash",
+              "description": "Shell execution only. Git operations, commands, docker, npm.",
+              "icon": "B"
+            },
+            {
+              "title": "code-reviewer",
+              "description": "Expert PR reviewer. Security (OWASP), clean code (SOLID), logic errors. Structured findings table.",
+              "icon": "CR"
+            },
+            {
+              "title": "websearch",
+              "description": "Quick web searches. WebSearch + WebFetch tools only.",
+              "icon": "WS"
+            },
+            {
+              "title": "clean-code-runner",
+              "description": "Runs /clean-code skill in isolation. Read, Edit, Write, Bash, Glob, Grep.",
+              "icon": "CC"
+            }
+          ]
+        },
+        {
+          "type": "cards",
+          "cards": [
+            {
+              "title": "claude-code-guide",
+              "description": "Answers questions about Claude Code features, hooks, slash commands, MCP, settings, IDE integrations, Agent SDK, Claude API.",
+              "icon": "CG"
+            },
+            {
+              "title": "code-simplifier",
+              "description": "Simplifies code for clarity, consistency, maintainability. Focuses on recently modified code.",
+              "icon": "CS"
+            },
+            {
+              "title": "tasks-worker",
+              "description": "Execute a single task file using oneshot methodology. Read, Write, Edit, Bash, Grep, Glob, WebSearch.",
+              "icon": "TW"
+            },
+            {
+              "title": "action",
+              "description": "Conditional action executor. Performs actions only when specific conditions are met. All tools.",
+              "icon": "A"
+            }
+          ]
+        },
+        {
+          "type": "cards",
+          "cards": [
+            {
+              "title": "explore-fast",
+              "description": "Rapid exploration agent. Uses Skill tool for quick context gathering.",
+              "icon": "EF"
+            },
+            {
+              "title": "explore-docs",
+              "description": "Research library documentation via Context7 MCP. All tools available.",
+              "icon": "ED"
+            },
+            {
+              "title": "explore-codebase",
+              "description": "Explore codebase to realize a feature. All tools available.",
+              "icon": "EC"
+            },
+            {
+              "title": "statusline-setup",
+              "description": "Configure Claude Code status line settings. Read + Edit tools only.",
+              "icon": "SL"
+            }
+          ]
+        }
+      ],
+      "subsections": []
+    },
+    {
+      "id": "skills",
+      "title": "Skills (50+)",
+      "content": [
+        {
+          "type": "text",
+          "html": "Skills are invokable via <code>/skill-name</code> or the Skill tool. Divided into workflows, utilities, git operations, meta-skills, and prompts."
+        }
+      ],
+      "subsections": [
+        {
+          "title": "Workflow Skills",
+          "content": []
+        },
+        {
+          "title": "Utility Skills",
+          "content": []
+        },
+        {
+          "title": "Git Skills",
+          "content": []
+        },
+        {
+          "title": "Meta Skills",
+          "content": []
+        },
+        {
+          "title": "Domain Skills",
+          "content": []
+        },
+        {
+          "title": "SaaS Prompt Skills",
+          "content": []
+        },
+        {
+          "title": "Setup Prompt Skills",
+          "content": []
+        }
+      ]
+    },
+    {
+      "id": "mcp",
+      "title": "MCP Servers",
+      "content": [
+        {
+          "type": "callout",
+          "variant": "cyan",
+          "html": "<p><strong>Context7 instruction:</strong> \"Use this server to retrieve up-to-date documentation and code examples for any library.\" Must call <code>resolve-library-id</code> before <code>query-docs</code> unless user provides a <code>/org/project</code> format ID.</p>"
+        },
+        {
+          "type": "text",
+          "html": "Three MCP (Model Context Protocol) servers are connected, providing external tool access."
+        },
+        {
+          "type": "cards",
+          "cards": [
+            {
+              "title": "ide",
+              "description": "getDiagnostics — VS Code language diagnosticsexecuteCode — Jupyter kernel execution",
+              "icon": "IDE"
+            },
+            {
+              "title": "exa",
+              "description": "web_search_exa — AI-powered web search with live crawlingget_code_context_exa — Highest quality code context for libs/SDKs",
+              "icon": "Exa"
+            },
+            {
+              "title": "context7",
+              "description": "resolve-library-id — Resolve package to library IDquery-docs — Query up-to-date documentation",
+              "icon": "C7"
+            }
+          ]
+        }
+      ],
+      "subsections": []
+    },
+    {
+      "id": "memory",
+      "title": "Memory System",
+      "content": [
+        {
+          "type": "text",
+          "html": "Persistent auto memory that survives across conversations."
+        }
+      ],
+      "subsections": []
+    },
+    {
+      "id": "git",
+      "title": "Git Commit Protocol",
+      "content": [
+        {
+          "type": "callout",
+          "variant": "red",
+          "html": "<p><strong>Git Safety Protocol — NEVER:</strong></p>"
+        },
+        {
+          "type": "text",
+          "html": "Strict rules for creating commits. Only commits when explicitly requested by the user."
+        }
+      ],
+      "subsections": []
+    },
+    {
+      "id": "pr",
+      "title": "Pull Request Protocol",
+      "content": [
+        {
+          "type": "text",
+          "html": "Uses <code>gh</code> CLI for all GitHub operations."
+        }
+      ],
+      "subsections": []
+    },
+    {
+      "id": "permissions",
+      "title": "Permission Modes",
+      "content": [
+        {
+          "type": "text",
+          "html": "Tools execute in a user-selected permission mode. Some modes auto-allow tools, others require per-call approval."
+        }
+      ],
+      "subsections": []
+    },
+    {
+      "id": "environment",
+      "title": "Environment",
+      "content": [
+        {
+          "type": "callout",
+          "variant": "blue",
+          "html": "<p><strong>Multiple working directories:</strong> Claude Code can access files across all listed directories. The primary directory is the default for Glob/Grep operations.</p>"
+        },
+        {
+          "type": "text",
+          "html": "The exact environment context available in this session."
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Property",
+            "Value"
+          ],
+          "rows": [
+            [
+              "Primary working directory",
+              "/Users/melvynx/Developer/models-tests/ide"
+            ],
+            [
+              "Git repository",
+              "false"
+            ],
+            [
+              "Additional directories",
+              "~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Brain 2.0.1~/Developer/saas/lumail.io/"
+            ],
+            [
+              "Platform",
+              "darwin (macOS)"
+            ],
+            [
+              "OS Version",
+              "Darwin 24.6.0"
+            ],
+            [
+              "Current date",
+              "2026-02-07"
+            ],
+            [
+              "Model",
+              "Opus 4.6 (claude-opus-4-6)"
+            ],
+            [
+              "Knowledge cutoff",
+              "May 2025"
+            ]
+          ]
+        }
+      ],
+      "subsections": []
+    },
+    {
+      "id": "claude-md",
+      "title": "CLAUDE.md — User Configuration",
+      "content": [
+        {
+          "type": "text",
+          "html": "User-specific instructions loaded into every session. These override default behavior."
+        }
+      ],
+      "subsections": [
+        {
+          "title": "Global CLAUDE.md ~/.claude/CLAUDE.md",
+          "content": []
+        },
+        {
+          "title": "File Operations Rule ~/.claude/rules/file-operations.md",
+          "content": []
+        }
+      ]
+    },
+    {
+      "id": "hooks",
+      "title": "Hooks System",
+      "content": [
+        {
+          "type": "callout",
+          "variant": "orange",
+          "html": "<p><strong>Known hooks in this session:</strong> A command-validator hook blocks <code>rm -rf</code> commands, enforcing the use of <code>trash</code> instead. Hook feedback is treated as user input.</p>"
+        },
+        {
+          "type": "text",
+          "html": "Shell commands that execute in response to events. Configured by the user."
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Hook Event",
+            "When It Fires"
+          ],
+          "rows": [
+            [
+              "PreToolUse",
+              "Before a tool is called"
+            ],
+            [
+              "PostToolUse",
+              "After a tool completes"
+            ],
+            [
+              "Stop",
+              "When the agent stops"
+            ],
+            [
+              "SessionStart",
+              "When a session begins"
+            ],
+            [
+              "UserPromptSubmit",
+              "When user submits a prompt"
+            ]
+          ]
+        }
+      ],
+      "subsections": []
+    },
+    {
+      "id": "context-compression",
+      "title": "Context Compression",
+      "content": [
+        {
+          "type": "callout",
+          "variant": "green",
+          "html": "<p><strong>Implication:</strong> Claude Code can handle conversations of arbitrary length. The context window is managed automatically—older messages get compressed so new information always fits. This is invisible to the user.</p>"
+        },
+        {
+          "type": "text",
+          "html": "The system automatically compresses older messages as the conversation approaches context limits."
+        }
+      ],
+      "subsections": []
+    },
+    {
+      "id": "tool-priority",
+      "title": "Tool Usage Priority Matrix",
+      "content": [
+        {
+          "type": "text",
+          "html": "Explicit rules on which tools to prefer for which operations."
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Operation",
+            "Use This",
+            "NOT This"
+          ],
+          "rows": [
+            [
+              "Read files",
+              "Read",
+              "cat, head, tail"
+            ],
+            [
+              "Edit files",
+              "Edit",
+              "sed, awk"
+            ],
+            [
+              "Create files",
+              "Write",
+              "echo >, cat <<EOF"
+            ],
+            [
+              "Search files by name",
+              "Glob",
+              "find, ls"
+            ],
+            [
+              "Search file contents",
+              "Grep",
+              "grep, rg"
+            ],
+            [
+              "System commands",
+              "Bash",
+              "—"
+            ],
+            [
+              "Simple directed search",
+              "Glob / Grep",
+              "Task(Explore)"
+            ],
+            [
+              "Deep codebase research",
+              "Task(Explore)",
+              "Multiple manual Glob/Grep"
+            ],
+            [
+              "GitHub operations",
+              "gh CLI (Bash)",
+              "WebFetch on GitHub URLs"
+            ],
+            [
+              "Quick refactor",
+              "action agent",
+              "Task without custom agent"
+            ],
+            [
+              "Codebase exploration",
+              "explore agent",
+              "Task without custom agent"
+            ]
+          ]
+        }
+      ],
+      "subsections": []
+    },
+    {
+      "id": "system-reminders",
+      "title": "System Reminders & Tags",
+      "content": [
+        {
+          "type": "text",
+          "html": "Special tags injected into the conversation by the system."
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Tag",
+            "Purpose"
+          ],
+          "rows": [
+            [
+              "<system-reminder>",
+              "System information injected into tool results or messages. Not related to specific tool results."
+            ],
+            [
+              "<user-prompt-submit-hook>",
+              "Feedback from user-configured hooks. Treated as user input."
+            ],
+            [
+              "File open notifications",
+              "\"The user opened file X in the IDE\" — may or may not be relevant to current task."
+            ],
+            [
+              "Malware warning",
+              "On file read: consider if file could be malware. Can analyze but must refuse to improve/augment."
+            ],
+            [
+              "Skills list",
+              "Available skills injected as system-reminder for Skill tool invocation."
+            ],
+            [
+              "CLAUDE.md contents",
+              "User's global and project-specific instructions loaded as context."
+            ]
+          ]
+        }
+      ],
+      "subsections": []
+    }
+  ],
+  "sidebarNav": [
+    {
+      "href": "#overview",
+      "label": "Overview",
+      "indent": false
+    },
+    {
+      "href": "#identity",
+      "label": "Identity & Model",
+      "indent": false
+    },
+    {
+      "href": "#architecture",
+      "label": "Architecture",
+      "indent": false
+    },
+    {
+      "href": "#system-prompt",
+      "label": "System Prompt",
+      "indent": false
+    },
+    {
+      "href": "#core-rules",
+      "label": "Core Rules",
+      "indent": true
+    },
+    {
+      "href": "#doing-tasks",
+      "label": "Doing Tasks",
+      "indent": true
+    },
+    {
+      "href": "#safety",
+      "label": "Safety & Care",
+      "indent": true
+    },
+    {
+      "href": "#tone",
+      "label": "Tone & Style",
+      "indent": true
+    },
+    {
+      "href": "#tools",
+      "label": "All Tools (27)",
+      "indent": false
+    },
+    {
+      "href": "#tools-file",
+      "label": "File Operations",
+      "indent": true
+    },
+    {
+      "href": "#tools-search",
+      "label": "Search",
+      "indent": true
+    },
+    {
+      "href": "#tools-exec",
+      "label": "Execution",
+      "indent": true
+    },
+    {
+      "href": "#tools-agent",
+      "label": "Agent / Swarm",
+      "indent": true
+    },
+    {
+      "href": "#tools-comm",
+      "label": "Communication",
+      "indent": true
+    },
+    {
+      "href": "#tools-task",
+      "label": "Task Management",
+      "indent": true
+    },
+    {
+      "href": "#tools-mcp",
+      "label": "MCP Tools",
+      "indent": true
+    },
+    {
+      "href": "#tools-other",
+      "label": "Other",
+      "indent": true
+    },
+    {
+      "href": "#agents",
+      "label": "Agent Types (16)",
+      "indent": false
+    },
+    {
+      "href": "#skills",
+      "label": "Skills (50+)",
+      "indent": false
+    },
+    {
+      "href": "#mcp",
+      "label": "MCP Servers",
+      "indent": false
+    },
+    {
+      "href": "#memory",
+      "label": "Memory System",
+      "indent": false
+    },
+    {
+      "href": "#git",
+      "label": "Git Protocol",
+      "indent": false
+    },
+    {
+      "href": "#pr",
+      "label": "PR Protocol",
+      "indent": false
+    },
+    {
+      "href": "#permissions",
+      "label": "Permission Modes",
+      "indent": false
+    },
+    {
+      "href": "#environment",
+      "label": "Environment",
+      "indent": false
+    },
+    {
+      "href": "#claude-md",
+      "label": "CLAUDE.md",
+      "indent": false
+    },
+    {
+      "href": "#hooks",
+      "label": "Hooks",
+      "indent": false
+    },
+    {
+      "href": "#context-compression",
+      "label": "Context Compression",
+      "indent": false
+    }
+  ]
+}

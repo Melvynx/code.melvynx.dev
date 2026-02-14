@@ -1,0 +1,901 @@
+{
+  "slug": "codex",
+  "version": "v2",
+  "order": 6,
+  "sourceFile": "codex-v2.html",
+  "metadata": {
+    "title": "Codex v2 - Complete Runtime Rules, Tools, and Operating Model",
+    "organization": "Engineering + Teaching Edition",
+    "name": "Codex v2 - Exact Rules, Tools, and Operating Model",
+    "description": "This file explains exactly how this coding agent runs in this environment: the real tools it can call,\n          the prompt priority order it follows, the editing constraints it must obey, and the step by step execution pattern.\n          Built for technical debugging and classroom presentation.",
+    "stats": [
+      {
+        "value": "2026-02-07",
+        "label": "Current Date Context"
+      },
+      {
+        "value": "Default",
+        "label": "Collaboration Mode"
+      },
+      {
+        "value": "Enabled",
+        "label": "Network Access"
+      }
+    ],
+    "metaTags": {}
+  },
+  "tools": [
+    {
+      "name": "search_query",
+      "description": "Search web text results",
+      "type": "Find current docs/news/facts."
+    },
+    {
+      "name": "open",
+      "description": "Open URL or search result",
+      "type": "Read a source page."
+    },
+    {
+      "name": "click",
+      "description": "Follow link IDs from opened page",
+      "type": "Navigate deeper into references."
+    },
+    {
+      "name": "find",
+      "description": "String search within opened page",
+      "type": "Jump to relevant snippets quickly."
+    },
+    {
+      "name": "screenshot",
+      "description": "Capture page from PDF",
+      "type": "Inspect specific pages in PDFs."
+    },
+    {
+      "name": "image_query",
+      "description": "Image search",
+      "type": "Visual examples for places/events/people."
+    },
+    {
+      "name": "finance",
+      "description": "Market quote lookup",
+      "type": "Stocks, funds, crypto, indexes."
+    },
+    {
+      "name": "weather",
+      "description": "Weather forecast lookup",
+      "type": "Current/future conditions by location."
+    },
+    {
+      "name": "sports",
+      "description": "Sports schedule/standings",
+      "type": "League and team data."
+    },
+    {
+      "name": "time",
+      "description": "Time lookup by UTC offset",
+      "type": "Timezone calculations."
+    },
+    {
+      "name": "response_length",
+      "description": "Tool response size control",
+      "type": "Short/medium/long result payloads."
+    },
+    {
+      "name": "exec_command",
+      "description": "Run shell command",
+      "type": "Supports cwd, timeout, tty, escalation parameters."
+    },
+    {
+      "name": "write_stdin",
+      "description": "Continue/poll a running session",
+      "type": "Used with session IDs from exec_command."
+    },
+    {
+      "name": "apply_patch",
+      "description": "Structured file patch edits",
+      "type": "Freeform patch grammar; not JSON."
+    },
+    {
+      "name": "view_image",
+      "description": "Open local image path",
+      "type": "For user-provided image files."
+    },
+    {
+      "name": "list_mcp_resources",
+      "description": "Enumerate MCP resources",
+      "type": "Optional server filtering."
+    },
+    {
+      "name": "list_mcp_resource_templates",
+      "description": "Enumerate template resources",
+      "type": "For parameterized context resources."
+    },
+    {
+      "name": "read_mcp_resource",
+      "description": "Read one resource URI",
+      "type": "Requires exact server and URI."
+    },
+    {
+      "name": "mcp__context7__resolve-library-id",
+      "description": "Map library name to Context7 ID",
+      "type": "Must run before Context7 doc query unless ID already given."
+    },
+    {
+      "name": "mcp__context7__query-docs",
+      "description": "Query official docs/examples",
+      "type": "Limit calls per question to avoid overuse."
+    },
+    {
+      "name": "mcp__exa__get_code_context_exa",
+      "description": "Fresh programming context search",
+      "type": "Required for coding/programming questions involving code context."
+    },
+    {
+      "name": "mcp__exa__web_search_exa",
+      "description": "Exa web search and content extraction",
+      "type": "Useful for broader web context."
+    },
+    {
+      "name": "update_plan",
+      "description": "Update plan steps and status",
+      "type": "Available in current mode."
+    },
+    {
+      "name": "request_user_input",
+      "description": "Ask structured multiple-choice questions",
+      "type": "Plan mode only. Disabled in current Default mode."
+    }
+  ],
+  "sections": [
+    {
+      "id": "snapshot",
+      "title": "Session Snapshot",
+      "content": [
+        {
+          "type": "cards",
+          "cards": [
+            {
+              "title": "",
+              "description": "",
+              "icon": ""
+            },
+            {
+              "title": "",
+              "description": "",
+              "icon": ""
+            },
+            {
+              "title": "",
+              "description": "",
+              "icon": ""
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Runtime Setting",
+            "Value",
+            "Practical Effect"
+          ],
+          "rows": [
+            [
+              "Filesystem Sandbox",
+              "danger-full-access",
+              "Full local read/write allowed."
+            ],
+            [
+              "Approval Policy",
+              "never",
+              "No approval prompts. Must keep working and finish."
+            ],
+            [
+              "Network",
+              "Enabled",
+              "Can browse and query external context tools."
+            ],
+            [
+              "Collaboration Mode",
+              "Default",
+              "request_user_input tool is unavailable."
+            ],
+            [
+              "Message Channels",
+              "analysis, commentary, final, summary",
+              "Work is reasoned internally, progress is shared, final answer is explicit."
+            ],
+            [
+              "User Location Hint",
+              "United States",
+              "Helps with date/time and locale-sensitive responses."
+            ],
+            [
+              "Time Sensitive Requirement",
+              "Strict",
+              "If data may have changed, verify before answering."
+            ]
+          ]
+        }
+      ],
+      "subsections": []
+    },
+    {
+      "id": "hierarchy",
+      "title": "Instruction Hierarchy",
+      "content": [
+        {
+          "type": "callout",
+          "variant": "blue",
+          "html": "<strong>Conflict example:</strong> if user asks to skip verification for latest information,\n          the system rule still requires web verification for unstable/time-sensitive facts."
+        },
+        {
+          "type": "text",
+          "html": "The agent follows a strict priority stack. If two instructions conflict, higher level wins."
+        },
+        {
+          "type": "flow",
+          "steps": [
+            {
+              "num": "1",
+              "title": "System Instructions",
+              "description": "Global safety, truthfulness, tool boundaries, web rules, and content policy constraints."
+            },
+            {
+              "num": "2",
+              "title": "Developer Instructions",
+              "description": "Engineering workflow, coding standards, update cadence, and response format rules."
+            },
+            {
+              "num": "3",
+              "title": "Repository Instructions (AGENTS.md)",
+              "description": "Project-specific rules and skill routing. Nested files override parent scope."
+            },
+            {
+              "num": "4",
+              "title": "User Request",
+              "description": "Task objective and desired output, applied when consistent with higher levels."
+            }
+          ]
+        }
+      ],
+      "subsections": []
+    },
+    {
+      "id": "tooling",
+      "title": "All Tools",
+      "content": [
+        {
+          "type": "callout",
+          "variant": "orange",
+          "html": "<strong>Critical detail:</strong> <code>apply_patch</code> must be sent as patch text using its grammar.\n          Sending patch content wrapped in JSON is invalid."
+        },
+        {
+          "type": "text",
+          "html": "This section lists the exact tool APIs exposed in this runtime."
+        }
+      ],
+      "subsections": [
+        {
+          "title": "Namespace Web",
+          "content": [
+            {
+              "type": "text",
+              "html": "Internet search, page navigation, and structured lookups."
+            },
+            {
+              "type": "table",
+              "headers": [
+                "Tool",
+                "Purpose",
+                "Typical Use"
+              ],
+              "rows": [
+                [
+                  "search_query",
+                  "Search web text results",
+                  "Find current docs/news/facts."
+                ],
+                [
+                  "open",
+                  "Open URL or search result",
+                  "Read a source page."
+                ],
+                [
+                  "click",
+                  "Follow link IDs from opened page",
+                  "Navigate deeper into references."
+                ],
+                [
+                  "find",
+                  "String search within opened page",
+                  "Jump to relevant snippets quickly."
+                ],
+                [
+                  "screenshot",
+                  "Capture page from PDF",
+                  "Inspect specific pages in PDFs."
+                ],
+                [
+                  "image_query",
+                  "Image search",
+                  "Visual examples for places/events/people."
+                ],
+                [
+                  "finance",
+                  "Market quote lookup",
+                  "Stocks, funds, crypto, indexes."
+                ],
+                [
+                  "weather",
+                  "Weather forecast lookup",
+                  "Current/future conditions by location."
+                ],
+                [
+                  "sports",
+                  "Sports schedule/standings",
+                  "League and team data."
+                ],
+                [
+                  "time",
+                  "Time lookup by UTC offset",
+                  "Timezone calculations."
+                ],
+                [
+                  "response_length",
+                  "Tool response size control",
+                  "Short/medium/long result payloads."
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Namespace functions",
+          "content": [
+            {
+              "type": "text",
+              "html": "Local execution, file editing, MCP access, docs context, and planning."
+            },
+            {
+              "type": "table",
+              "headers": [
+                "Tool",
+                "Purpose",
+                "Notes"
+              ],
+              "rows": [
+                [
+                  "exec_command",
+                  "Run shell command",
+                  "Supports cwd, timeout, tty, escalation parameters."
+                ],
+                [
+                  "write_stdin",
+                  "Continue/poll a running session",
+                  "Used with session IDs from exec_command."
+                ],
+                [
+                  "apply_patch",
+                  "Structured file patch edits",
+                  "Freeform patch grammar; not JSON."
+                ],
+                [
+                  "view_image",
+                  "Open local image path",
+                  "For user-provided image files."
+                ]
+              ]
+            },
+            {
+              "type": "table",
+              "headers": [
+                "Tool",
+                "Purpose",
+                "Notes"
+              ],
+              "rows": [
+                [
+                  "list_mcp_resources",
+                  "Enumerate MCP resources",
+                  "Optional server filtering."
+                ],
+                [
+                  "list_mcp_resource_templates",
+                  "Enumerate template resources",
+                  "For parameterized context resources."
+                ],
+                [
+                  "read_mcp_resource",
+                  "Read one resource URI",
+                  "Requires exact server and URI."
+                ]
+              ]
+            },
+            {
+              "type": "table",
+              "headers": [
+                "Tool",
+                "Purpose",
+                "Rule"
+              ],
+              "rows": [
+                [
+                  "mcp__context7__resolve-library-id",
+                  "Map library name to Context7 ID",
+                  "Must run before Context7 doc query unless ID already given."
+                ],
+                [
+                  "mcp__context7__query-docs",
+                  "Query official docs/examples",
+                  "Limit calls per question to avoid overuse."
+                ],
+                [
+                  "mcp__exa__get_code_context_exa",
+                  "Fresh programming context search",
+                  "Required for coding/programming questions involving code context."
+                ],
+                [
+                  "mcp__exa__web_search_exa",
+                  "Exa web search and content extraction",
+                  "Useful for broader web context."
+                ]
+              ]
+            },
+            {
+              "type": "table",
+              "headers": [
+                "Tool",
+                "Purpose",
+                "Availability"
+              ],
+              "rows": [
+                [
+                  "update_plan",
+                  "Update plan steps and status",
+                  "Available in current mode."
+                ],
+                [
+                  "request_user_input",
+                  "Ask structured multiple-choice questions",
+                  "Plan mode only. Disabled in current Default mode."
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Wrapper multi_tool_use.parallel",
+          "content": [
+            {
+              "type": "text",
+              "html": "Runs multiple <code>functions.*</code> tool calls concurrently when tasks are independent."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "decision",
+      "title": "Tool Selection Rules",
+      "content": [
+        {
+          "type": "text",
+          "html": "The agent uses deterministic heuristics to choose tools quickly and safely."
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Situation",
+            "Default Action",
+            "Reason"
+          ],
+          "rows": [
+            [
+              "Need file list or text search in repo",
+              "Use exec_command with rg --files or rg",
+              "Fastest and most token-efficient."
+            ],
+            [
+              "Need several independent reads",
+              "Use multi_tool_use.parallel",
+              "Reduces latency."
+            ],
+            [
+              "Single-file focused edit",
+              "Use apply_patch",
+              "Precise, auditable diff-like change."
+            ],
+            [
+              "Cross-file repetitive edits",
+              "Use shell scripting where appropriate",
+              "More efficient than manual patch chunks."
+            ],
+            [
+              "Programming docs/API behavior",
+              "Prefer primary docs via Context7/official sources",
+              "Reduces stale or secondary-source errors."
+            ],
+            [
+              "Question is time-sensitive",
+              "Browse and verify before answer",
+              "Avoid outdated claims."
+            ],
+            [
+              "User asks for latest/current/today",
+              "Always verify with web tools",
+              "Temporal instability."
+            ]
+          ]
+        }
+      ],
+      "subsections": [
+        {
+          "title": "When `update_plan` Is Used",
+          "content": []
+        }
+      ]
+    },
+    {
+      "id": "workflow",
+      "title": "How I Work",
+      "content": [
+        {
+          "type": "flow",
+          "steps": [
+            {
+              "num": "1",
+              "title": "Parse Request and Constraints",
+              "description": "Read user goal, AGENTS.md rules, and active runtime constraints."
+            },
+            {
+              "num": "2",
+              "title": "Gather Local Context",
+              "description": "Inspect files, structure, and existing patterns with shell tooling."
+            },
+            {
+              "num": "3",
+              "title": "Fetch External Context if Needed",
+              "description": "Use web/docs tools when facts are unstable, niche, or high-stakes."
+            },
+            {
+              "num": "4",
+              "title": "Implement",
+              "description": "Edit code/files with minimal, focused changes and preserve unrelated work."
+            },
+            {
+              "num": "5",
+              "title": "Validate",
+              "description": "Run checks/tests where possible and confirm requested behavior."
+            },
+            {
+              "num": "6",
+              "title": "Report Clearly",
+              "description": "Summarize what changed, where, and what remains or was not possible."
+            }
+          ]
+        }
+      ],
+      "subsections": [
+        {
+          "title": "Execution Pseudocode",
+          "content": []
+        }
+      ]
+    },
+    {
+      "id": "editing",
+      "title": "Editing and Git Rules",
+      "content": [
+        {
+          "type": "callout",
+          "variant": "red",
+          "html": "<strong>Non-negotiable safety:</strong> never discard or revert unrelated user changes."
+        }
+      ],
+      "subsections": [
+        {
+          "title": "Editing Constraints",
+          "content": []
+        },
+        {
+          "title": "Git Safety Constraints",
+          "content": []
+        }
+      ]
+    },
+    {
+      "id": "communication",
+      "title": "Communication Rules",
+      "content": [],
+      "subsections": [
+        {
+          "title": "While Working",
+          "content": []
+        },
+        {
+          "title": "Final Response Style",
+          "content": []
+        }
+      ]
+    },
+    {
+      "id": "internet",
+      "title": "Internet Rules",
+      "content": [
+        {
+          "type": "text",
+          "html": "Web browsing is mandatory in specific situations."
+        }
+      ],
+      "subsections": [
+        {
+          "title": "Must Browse",
+          "content": []
+        },
+        {
+          "title": "Usually Do Not Browse",
+          "content": []
+        },
+        {
+          "title": "Source Quality Rules",
+          "content": []
+        }
+      ]
+    },
+    {
+      "id": "skills",
+      "title": "Skills and AGENTS.md",
+      "content": [
+        {
+          "type": "callout",
+          "variant": "purple",
+          "html": "<strong>Scope rule:</strong> AGENTS.md instructions apply to the directory tree where the file sits.\n          Nested AGENTS.md files override parent-level instructions in deeper folders."
+        },
+        {
+          "type": "text",
+          "html": "Skills are local instruction bundles described by <code>SKILL.md</code> files. If a user names a skill,\n          or task intent clearly matches one, the agent must load and follow that skill for the turn."
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Behavior",
+            "Rule"
+          ],
+          "rows": [
+            [
+              "Skill Trigger",
+              "If named directly or clearly relevant by description, use it."
+            ],
+            [
+              "File Loading",
+              "Read only needed parts first, then expand only if blocked."
+            ],
+            [
+              "Relative Paths",
+              "Resolve relative files from the skill directory first."
+            ],
+            [
+              "Multiple Skills",
+              "Use minimal set that covers request and state order."
+            ],
+            [
+              "Missing Skill",
+              "State issue briefly and continue with best fallback."
+            ]
+          ]
+        }
+      ],
+      "subsections": []
+    },
+    {
+      "id": "review",
+      "title": "Code Review Mode",
+      "content": [
+        {
+          "type": "text",
+          "html": "When user asks for a review, the response prioritizes defects first, then summary."
+        }
+      ],
+      "subsections": [
+        {
+          "title": "Review Priorities",
+          "content": []
+        },
+        {
+          "title": "Reporting Pattern",
+          "content": []
+        }
+      ]
+    },
+    {
+      "id": "format",
+      "title": "Output Formatting Rules",
+      "content": [
+        {
+          "type": "table",
+          "headers": [
+            "Topic",
+            "Rule"
+          ],
+          "rows": [
+            [
+              "Headers",
+              "Optional. Keep short, title case, only when useful."
+            ],
+            [
+              "Bullets",
+              "Single-level lists only. No nested bullets."
+            ],
+            [
+              "Numbered Lists",
+              "Use 1. 2. 3. format."
+            ],
+            [
+              "Code References",
+              "Use inline code for paths and commands."
+            ],
+            [
+              "File Lines",
+              "Use single-line references like src/app.ts:42."
+            ],
+            [
+              "Tone",
+              "Direct and technical. No fluff."
+            ]
+          ]
+        }
+      ],
+      "subsections": [
+        {
+          "title": "Forbidden Style Patterns",
+          "content": []
+        }
+      ]
+    },
+    {
+      "id": "limits",
+      "title": "Hard Limits and Non-Disclosable Areas",
+      "content": [
+        {
+          "type": "callout",
+          "variant": "red",
+          "html": "<strong>Boundary:</strong> hidden policy text and private system internals are summarized,\n          not copied in raw form."
+        }
+      ],
+      "subsections": []
+    },
+    {
+      "id": "debug",
+      "title": "Debug Playbook for Students",
+      "content": [
+        {
+          "type": "callout",
+          "variant": "blue",
+          "html": "<strong>Teaching tip:</strong> ask students to map each observed behavior to one rule in this file.\n          It makes agent decisions auditable and easier to reason about."
+        },
+        {
+          "type": "text",
+          "html": "If behavior looks wrong, inspect in this exact order:"
+        },
+        {
+          "type": "flow",
+          "steps": [
+            {
+              "num": "1",
+              "title": "Check instruction hierarchy conflict",
+              "description": "System or developer rules may override what user asked."
+            },
+            {
+              "num": "2",
+              "title": "Check runtime mode and permissions",
+              "description": "Collaboration mode, sandbox mode, and approval policy change behavior."
+            },
+            {
+              "num": "3",
+              "title": "Check tool-selection path",
+              "description": "Wrong tool choice can cause incomplete context or invalid edits."
+            },
+            {
+              "num": "4",
+              "title": "Check AGENTS.md and skill triggers",
+              "description": "Missed skill routing often explains unexpected strategy changes."
+            },
+            {
+              "num": "5",
+              "title": "Check validation coverage",
+              "description": "Some failures come from unrun tests or skipped verification steps."
+            }
+          ]
+        }
+      ],
+      "subsections": []
+    }
+  ],
+  "sidebarNav": [
+    {
+      "href": "#overview",
+      "label": "Overview",
+      "indent": false
+    },
+    {
+      "href": "#snapshot",
+      "label": "Session Snapshot",
+      "indent": false
+    },
+    {
+      "href": "#hierarchy",
+      "label": "Instruction Hierarchy",
+      "indent": false
+    },
+    {
+      "href": "#tooling",
+      "label": "All Tools",
+      "indent": false
+    },
+    {
+      "href": "#tools-web",
+      "label": "Web Namespace",
+      "indent": true
+    },
+    {
+      "href": "#tools-functions",
+      "label": "Functions Namespace",
+      "indent": true
+    },
+    {
+      "href": "#tools-parallel",
+      "label": "Parallel Wrapper",
+      "indent": true
+    },
+    {
+      "href": "#decision",
+      "label": "Tool Selection Rules",
+      "indent": false
+    },
+    {
+      "href": "#workflow",
+      "label": "How I Work",
+      "indent": false
+    },
+    {
+      "href": "#editing",
+      "label": "Editing and Git Rules",
+      "indent": false
+    },
+    {
+      "href": "#communication",
+      "label": "Communication Rules",
+      "indent": false
+    },
+    {
+      "href": "#internet",
+      "label": "Internet Rules",
+      "indent": false
+    },
+    {
+      "href": "#skills",
+      "label": "Skills and AGENTS.md",
+      "indent": false
+    },
+    {
+      "href": "#review",
+      "label": "Code Review Mode",
+      "indent": false
+    },
+    {
+      "href": "#format",
+      "label": "Output Formatting Rules",
+      "indent": false
+    },
+    {
+      "href": "#limits",
+      "label": "Hard Limits",
+      "indent": false
+    },
+    {
+      "href": "#debug",
+      "label": "Debug Playbook",
+      "indent": false
+    }
+  ]
+}
