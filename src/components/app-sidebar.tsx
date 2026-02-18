@@ -10,6 +10,8 @@ import {
   Terminal,
   Sparkles,
   Menu,
+  FlaskConical,
+  BarChart3,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -82,6 +84,35 @@ function SidebarNav() {
             >
               <GitCompare className="size-3.5" />
               Compare
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/prompts"
+              className={cn(
+                "flex items-center gap-2 rounded px-2 py-1 text-[13px] transition-colors",
+                pathname.startsWith("/prompts") &&
+                  !pathname.startsWith("/prompts/test")
+                  ? "bg-muted text-foreground font-medium"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <FlaskConical className="size-3.5" />
+              Testing Prompts
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/prompts/test"
+              className={cn(
+                "flex items-center gap-2 rounded px-2 py-1 text-[13px] transition-colors",
+                pathname.startsWith("/prompts/test")
+                  ? "bg-muted text-foreground font-medium"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <BarChart3 className="size-3.5" />
+              Model Tests
             </Link>
           </li>
         </ul>
