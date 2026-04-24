@@ -31,6 +31,11 @@ const PROMPT_META: Record<string, { name: string; description: string }> = {
     description:
       "Interactive 3D SpongeBob SquarePants underwater world in a single self-contained HTML file using Three.js.",
   },
+  "mini-figma-clone": {
+    name: "Mini Figma Clone",
+    description:
+      "Build the most complete, polished, architecturally sound mini-Figma clone possible in one shot - infinite canvas, scene graph, command-pattern undo, and production-grade code quality.",
+  },
 };
 
 export function getAllPrompts(): PromptEntry[] {
