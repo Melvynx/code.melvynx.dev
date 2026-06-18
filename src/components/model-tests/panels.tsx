@@ -41,46 +41,34 @@ export function AdminPanel({
 
   if (!actions.adminRequired) {
     return (
-      <div className="rounded-lg border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
-        Local mode is editable without a password. Add
-        <span className="font-medium text-foreground">
-          {" "}
-          NEXT_PUBLIC_CONVEX_URL
-        </span>{" "}
-        to switch to Convex persistence.
-      </div>
+      <span
+        title="Local editable mode"
+        aria-label="Local editable mode"
+        className="inline-flex size-8 items-center justify-center rounded-md border bg-muted text-muted-foreground"
+      >
+        <Pencil className="size-3.5" />
+      </span>
     );
   }
 
   if (actions.isAdmin) {
     return (
-      <div className="flex items-center gap-3 rounded-lg border px-4 py-3">
-        <div className="flex size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
-          <Lock className="size-4" />
-        </div>
-        <div className="min-w-0">
-          <div className="text-sm font-medium">Write access unlocked</div>
-          <p className="text-xs text-muted-foreground">
-            Mutations and image uploads will use your password for this tab.
-          </p>
-        </div>
-        <Button variant="outline" size="sm" onClick={actions.logout}>
-          Lock
-        </Button>
-      </div>
+      <Button variant="outline" size="sm" onClick={actions.logout}>
+        <Lock className="size-4" />
+        Lock
+      </Button>
     );
   }
 
   return (
     <form
-      className="flex w-full flex-col gap-2 rounded-lg border p-3 sm:w-[360px]"
+      className="flex items-center gap-2"
       onSubmit={async (event) => {
         event.preventDefault();
         setLoading(true);
         try {
           await actions.login(password);
           setPassword("");
-          onNotice({ kind: "success", message: "Convex write access unlocked." });
         } catch (error) {
           onNotice({
             kind: "error",
@@ -92,34 +80,24 @@ export function AdminPanel({
         }
       }}
     >
-      <label htmlFor="model-test-password" className="text-sm font-medium">
-        Convex write password
-      </label>
-      <div className="flex gap-2">
-        <Input
-          id="model-test-password"
-          type="password"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          placeholder={
-            actions.passwordConfigured ? "Password" : "Set env first"
-          }
-          disabled={!actions.passwordConfigured || loading}
-        />
-        <Button
-          type="submit"
-          size="sm"
-          disabled={!password || !actions.passwordConfigured || loading}
-        >
-          {loading ? <Loader2 className="size-4 animate-spin" /> : <KeyRound />}
-          Unlock
-        </Button>
-      </div>
-      {!actions.passwordConfigured && (
-        <p className="text-xs text-destructive">
-          Set MODEL_TEST_ADMIN_PASSWORD in Convex env before editing.
-        </p>
-      )}
+      <Input
+        id="model-test-password"
+        type="password"
+        value={password}
+        onChange={(event) => setPassword(event.target.value)}
+        placeholder={actions.passwordConfigured ? "Password" : "No password"}
+        aria-label="Convex write password"
+        disabled={!actions.passwordConfigured || loading}
+        className="h-8 w-40"
+      />
+      <Button
+        type="submit"
+        size="sm"
+        disabled={!password || !actions.passwordConfigured || loading}
+      >
+        {loading ? <Loader2 className="size-4 animate-spin" /> : <KeyRound />}
+        Unlock
+      </Button>
     </form>
   );
 }

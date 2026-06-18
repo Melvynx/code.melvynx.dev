@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Camera, Check, FlaskConical, X } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Camera, Database, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   resultKey,
@@ -12,7 +11,7 @@ import {
   type ModelTestResult,
   type ModelTestWorkspace,
 } from "@/lib/model-tests";
-import { AdminPanel, ChallengeComposer, EmptyState, LoadingState, ModeBadge, ModelLibraryPanel, SuiteDetailPanel, SuitePanel } from "./panels";
+import { AdminPanel, ChallengeComposer, EmptyState, LoadingState, ModelLibraryPanel, SuiteDetailPanel, SuitePanel } from "./panels";
 import { ResultsMatrix } from "./matrix";
 import { SummaryPanel } from "./summary";
 import { ResultDialog } from "./result-dialog";
@@ -93,13 +92,11 @@ export function ModelTestExperience({
     task: () => Promise<void>,
     successMessage?: string,
   ): Promise<void> {
+    void successMessage;
     setBusy(true);
     setNotice(null);
     try {
       await task();
-      if (successMessage) {
-        setNotice({ kind: "success", message: successMessage });
-      }
     } catch (error) {
       setNotice({
         kind: "error",
@@ -130,56 +127,39 @@ export function ModelTestExperience({
       : 0;
 
   return (
-    <div className="space-y-8">
-      <header className="flex flex-col gap-5 border-b pb-6 lg:flex-row lg:items-start lg:justify-between">
-        <div className="max-w-3xl space-y-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="outline" className="gap-1.5">
-              <FlaskConical className="size-3" />
-              Model tests
-            </Badge>
-            <ModeBadge actions={actions} />
-            {actions.uploadsConfigured ? (
-              <Badge variant="secondary" className="gap-1.5">
-                <Camera className="size-3" />
-                Images enabled
-              </Badge>
-            ) : (
-              <Badge variant="outline" className="gap-1.5">
-                <Camera className="size-3" />
-                Upload env missing
-              </Badge>
-            )}
-          </div>
-          <div>
-            <h1 className="text-3xl font-semibold tracking-tight">
-              Model test lab
-            </h1>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-              Create reusable benchmark suites, choose models per suite, score
-              each challenge with a three-part rubric, and keep screenshots with
-              the result evidence.
-            </p>
-          </div>
+    <div className="space-y-6">
+      <header className="flex flex-col gap-3 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-2xl font-semibold tracking-tight">Model tests</h1>
         </div>
 
-        <AdminPanel actions={actions} onNotice={setNotice} />
+        <div className="flex flex-wrap items-center gap-2">
+          <StatusIcon
+            active={actions.mode === "convex"}
+            label={actions.mode === "convex" ? "Convex connected" : "Local mode"}
+            icon={<Database className="size-3.5" />}
+          />
+          <StatusIcon
+            active={actions.uploadsConfigured}
+            label={
+              actions.uploadsConfigured
+                ? "Image uploads enabled"
+                : "Image uploads unavailable"
+            }
+            icon={<Camera className="size-3.5" />}
+          />
+          <AdminPanel actions={actions} onNotice={setNotice} />
+        </div>
       </header>
 
-      {notice && (
+      {notice?.kind === "error" && (
         <div
           className={cn(
             "flex items-start gap-2 rounded-lg border px-3 py-2 text-sm",
-            notice.kind === "error"
-              ? "border-destructive/30 bg-destructive/5 text-destructive"
-              : "border-border bg-muted/60 text-foreground",
+            "border-destructive/30 bg-destructive/5 text-destructive",
           )}
         >
-          {notice.kind === "error" ? (
-            <X className="mt-0.5 size-4 shrink-0" />
-          ) : (
-            <Check className="mt-0.5 size-4 shrink-0" />
-          )}
+          <X className="mt-0.5 size-4 shrink-0" />
           <span>{notice.message}</span>
         </div>
       )}
@@ -346,5 +326,30 @@ export function ModelTestExperience({
         }
       />
     </div>
+  );
+}
+
+function StatusIcon({
+  active,
+  label,
+  icon,
+}: {
+  active: boolean;
+  label: string;
+  icon: React.ReactNode;
+}) {
+  return (
+    <span
+      title={label}
+      aria-label={label}
+      className={cn(
+        "inline-flex size-8 items-center justify-center rounded-md border transition-colors",
+        active
+          ? "border-border bg-muted text-foreground"
+          : "border-dashed text-muted-foreground",
+      )}
+    >
+      {icon}
+    </span>
   );
 }
