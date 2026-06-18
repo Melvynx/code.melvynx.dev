@@ -44,17 +44,11 @@ export function SummaryPanel({
 
   return (
     <section className="rounded-lg border p-4">
-      <div className="mb-4 flex flex-col gap-1">
+      <div className="mb-4">
         <h2 className="font-semibold">Summary: {suite.title}</h2>
-        <p className="text-sm text-muted-foreground">
-          Ranking uses the average of code quality, prompt feature, and
-          reliability across completed challenge results.
-        </p>
       </div>
       {rows.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          Select models to see a summary.
-        </p>
+        <p className="text-sm text-muted-foreground">No model selected.</p>
       ) : (
         <div className="space-y-2">
           {rows.map((row, index) => (
