@@ -90,12 +90,13 @@ export function LocalModelTestBoard({ systemPrompts }: Props) {
     logout: () => {},
     createModel: async (input) => {
       const timestamp = Date.now();
+      const modelId = makeLocalId("model");
       saveWorkspace((previous) => ({
         ...previous,
         models: [
           ...previous.models,
           {
-            _id: makeLocalId("model"),
+            _id: modelId,
             name: input.name.trim(),
             provider: compactText(input.provider),
             notes: compactText(input.notes),
@@ -103,6 +104,29 @@ export function LocalModelTestBoard({ systemPrompts }: Props) {
             updatedAt: timestamp,
           },
         ],
+      }));
+      return modelId;
+    },
+    updateModel: async (modelId, input) => {
+      saveWorkspace((previous) => ({
+        ...previous,
+        models: previous.models.map((model) =>
+          model._id === modelId
+            ? {
+                ...model,
+                ...(input.name !== undefined
+                  ? { name: input.name.trim() }
+                  : {}),
+                ...(input.provider !== undefined
+                  ? { provider: compactText(input.provider) }
+                  : {}),
+                ...(input.notes !== undefined
+                  ? { notes: compactText(input.notes) }
+                  : {}),
+                updatedAt: Date.now(),
+              }
+            : model,
+        ),
       }));
     },
     deleteModel: async (modelId) => {

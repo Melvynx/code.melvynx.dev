@@ -11,7 +11,7 @@ import {
   type ModelTestResult,
   type ModelTestWorkspace,
 } from "@/lib/model-tests";
-import { AdminPanel, ChallengeComposer, EmptyState, LoadingState, ModelLibraryPanel, SuiteDetailPanel, SuitePanel } from "./panels";
+import { AdminPanel, EmptyState, LoadingState } from "./panels";
 import { ResultsMatrix } from "./matrix";
 import { SummaryPanel } from "./summary";
 import { ResultDialog } from "./result-dialog";
@@ -65,6 +65,10 @@ export function ModelTestExperience({
   const selectedModels = suiteModelLinks
     .map((link) => workspace.models.find((model) => model._id === link.modelId))
     .filter((model): model is ModelTestModel => Boolean(model));
+  const selectedModelIds = new Set(selectedModels.map((model) => model._id));
+  const availableModels = workspace.models.filter(
+    (model) => !selectedModelIds.has(model._id),
+  );
   const challenges = selectedSuite
     ? workspace.challenges
         .filter((challenge) => challenge.suiteId === selectedSuite._id)
@@ -111,7 +115,6 @@ export function ModelTestExperience({
   const selectedChallengeIds = new Set(
     challenges.map((challenge) => challenge._id),
   );
-  const selectedModelIds = new Set(selectedModels.map((model) => model._id));
   const completedResults = selectedSuite
     ? workspace.results.filter((result) => result.suiteId === selectedSuite._id)
         .filter(
@@ -174,125 +177,119 @@ export function ModelTestExperience({
             run(async () => {
               const suiteId = await actions.seedStarterSuite();
               if (suiteId) setSelectedSuiteId(String(suiteId));
-            }, "Starter suite created.")
+            }, "Suite created.")
           }
         />
       ) : (
-        <div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
-          <aside className="space-y-4">
-            <SuitePanel
-              workspace={workspace}
-              selectedSuiteId={selectedSuiteId}
-              canWrite={canWrite}
-              busy={busy}
-              onSelect={setSelectedSuiteId}
-              onCreate={(input) =>
-                run(async () => {
-                  const suiteId = await actions.createSuite(input);
-                  if (suiteId) setSelectedSuiteId(String(suiteId));
-                }, "Suite created.")
-              }
-              onDelete={(suiteId) =>
-                run(
-                  async () => actions.deleteSuite(suiteId),
-                  "Suite deleted.",
-                )
-              }
-            />
-            <ModelLibraryPanel
-              models={workspace.models}
-              selectedModelIds={selectedModels.map((model) => model._id)}
-              canWrite={canWrite}
-              busy={busy}
-              onCreate={(input) =>
-                run(
-                  async () => actions.createModel(input),
-                  "Model added to library.",
-                )
-              }
-              onDelete={(modelId) =>
-                run(
-                  async () => actions.deleteModel(modelId),
-                  "Model deleted.",
-                )
-              }
-            />
-          </aside>
-
-          <main className="min-w-0 space-y-5">
-            {selectedSuite ? (
-              <>
-                <SuiteDetailPanel
-                  key={selectedSuite._id}
-                  suite={selectedSuite}
-                  models={workspace.models}
-                  selectedModels={selectedModels}
-                  suiteModelIds={selectedModels.map((model) => model._id)}
-                  canWrite={canWrite}
-                  busy={busy}
-                  completion={completion}
-                  challengeCount={challenges.length}
-                  resultCount={completedResults.length}
-                  onUpdate={(input) =>
-                    run(
-                      async () => actions.updateSuite(selectedSuite._id, input),
-                      "Suite updated.",
-                    )
-                  }
-                  onSetModels={(modelIds) =>
-                    run(
-                      async () =>
-                        actions.setSuiteModels(selectedSuite._id, modelIds),
-                      "Suite models updated.",
-                    )
-                  }
-                />
-                <ChallengeComposer
-                  suiteId={selectedSuite._id}
-                  systemPrompts={systemPrompts}
-                  canWrite={canWrite}
-                  busy={busy}
-                  onCreate={(input) =>
-                    run(
-                      async () => actions.createChallenge(input),
-                      "Challenge added.",
-                    )
-                  }
-                />
-                <ResultsMatrix
-                  selectedModels={selectedModels}
-                  challenges={challenges}
-                  resultsByKey={resultsByKey}
-                  attachmentsByResult={attachmentsByResult}
-                  canWrite={canWrite}
-                  busy={busy}
-                  onEdit={(challenge, model, result) =>
-                    setEditingResult({ challenge, model, result })
-                  }
-                  onDeleteChallenge={(challengeId) =>
-                    run(
-                      async () => actions.deleteChallenge(challengeId),
-                      "Challenge deleted.",
-                    )
-                  }
-                  onUpdateChallenge={(challengeId, input) =>
-                    run(
-                      async () =>
-                        actions.updateChallenge(challengeId, input),
-                      "Challenge updated.",
-                    )
-                  }
-                />
-                <SummaryPanel
-                  suite={selectedSuite}
-                  selectedModels={selectedModels}
-                  challenges={challenges}
-                  results={completedResults}
-                />
-              </>
-            ) : null}
-          </main>
-        </div>
+        <main className="min-w-0 space-y-5">
+          {selectedSuite ? (
+            <>
+              <ResultsMatrix
+                suites={workspace.suites}
+                selectedSuite={selectedSuite}
+                selectedModels={selectedModels}
+                availableModels={availableModels}
+                challenges={challenges}
+                systemPrompts={systemPrompts}
+                resultsByKey={resultsByKey}
+                attachmentsByResult={attachmentsByResult}
+                canWrite={canWrite}
+                busy={busy}
+                completion={completion}
+                resultCount={completedResults.length}
+                onSelectSuite={setSelectedSuiteId}
+                onCreateSuite={() =>
+                  run(async () => {
+                    const suiteId = await actions.createSuite({
+                      title: "Untitled model test",
+                    });
+                    if (suiteId) setSelectedSuiteId(String(suiteId));
+                  }, "Suite created.")
+                }
+                onDeleteSuite={() =>
+                  run(async () => {
+                    await actions.deleteSuite(selectedSuite._id);
+                    const nextSuite = workspace.suites.find(
+                      (suite) => suite._id !== selectedSuite._id,
+                    );
+                    setSelectedSuiteId(nextSuite?._id ?? null);
+                  }, "Suite deleted.")
+                }
+                onUpdateSuite={(input) =>
+                  run(
+                    async () => actions.updateSuite(selectedSuite._id, input),
+                    "Suite updated.",
+                  )
+                }
+                onCreateModel={(input) =>
+                  run(async () => {
+                    const modelId = await actions.createModel(input);
+                    if (!modelId) return;
+                    await actions.setSuiteModels(selectedSuite._id, [
+                      ...selectedModels.map((model) => model._id),
+                      String(modelId),
+                    ]);
+                  }, "Model added.")
+                }
+                onUpdateModel={(modelId, input) =>
+                  run(
+                    async () => actions.updateModel(modelId, input),
+                    "Model updated.",
+                  )
+                }
+                onRemoveModel={(modelId) =>
+                  run(async () => {
+                    await actions.setSuiteModels(
+                      selectedSuite._id,
+                      selectedModels
+                        .map((model) => model._id)
+                        .filter((id) => id !== modelId),
+                    );
+                  }, "Model removed.")
+                }
+                onAddExistingModel={(modelId) =>
+                  run(async () => {
+                    await actions.setSuiteModels(selectedSuite._id, [
+                      ...selectedModels.map((model) => model._id),
+                      modelId,
+                    ]);
+                  }, "Model added.")
+                }
+                onCreateChallenge={(input) =>
+                  run(
+                    async () =>
+                      actions.createChallenge({
+                        suiteId: selectedSuite._id,
+                        ...input,
+                      }),
+                    "Challenge added.",
+                  )
+                }
+                onEdit={(challenge, model, result) =>
+                  setEditingResult({ challenge, model, result })
+                }
+                onDeleteChallenge={(challengeId) =>
+                  run(
+                    async () => actions.deleteChallenge(challengeId),
+                    "Challenge deleted.",
+                  )
+                }
+                onUpdateChallenge={(challengeId, input) =>
+                  run(
+                    async () => actions.updateChallenge(challengeId, input),
+                    "Challenge updated.",
+                  )
+                }
+              />
+              <SummaryPanel
+                suite={selectedSuite}
+                selectedModels={selectedModels}
+                challenges={challenges}
+                results={completedResults}
+              />
+            </>
+          ) : null}
+        </main>
       )}
 
       <ResultDialog

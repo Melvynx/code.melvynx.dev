@@ -585,44 +585,9 @@ export const seedStarterSuite = mutation({
   handler: async (ctx, args) => {
     requireModelTestAdminPassword(args.adminPassword);
     const timestamp = now();
-    const opusId = await ctx.db.insert("modelTestModels", {
-      name: "Opus 4.5",
-      provider: "Anthropic",
-      createdAt: timestamp,
-      updatedAt: timestamp,
-    });
-    const geminiId = await ctx.db.insert("modelTestModels", {
-      name: "Gemini 3",
-      provider: "Google",
-      createdAt: timestamp,
-      updatedAt: timestamp,
-    });
     const suiteId = await ctx.db.insert("modelTestSuites", {
-      title: "Opus 4.5 vs Gemini 3",
-      description: "Starter comparison suite for coding model evaluations.",
+      title: "Untitled model test",
       status: "draft",
-      createdAt: timestamp,
-      updatedAt: timestamp,
-    });
-
-    await ctx.db.insert("modelTestSuiteModels", {
-      suiteId,
-      modelId: opusId,
-      order: 0,
-      createdAt: timestamp,
-    });
-    await ctx.db.insert("modelTestSuiteModels", {
-      suiteId,
-      modelId: geminiId,
-      order: 1,
-      createdAt: timestamp,
-    });
-    await ctx.db.insert("modelTestChallenges", {
-      suiteId,
-      title: "Feature implementation",
-      promptText: "Build the requested feature with clean architecture.",
-      expectedOutcome: "The result matches the prompt and remains maintainable.",
-      order: 0,
       createdAt: timestamp,
       updatedAt: timestamp,
     });

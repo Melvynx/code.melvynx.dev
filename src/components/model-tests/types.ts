@@ -34,7 +34,15 @@ export type BoardActions = {
     name: string;
     provider?: string;
     notes?: string;
-  }) => Promise<void>;
+  }) => Promise<string | void>;
+  updateModel: (
+    modelId: string,
+    input: {
+      name?: string;
+      provider?: string;
+      notes?: string;
+    },
+  ) => Promise<void>;
   deleteModel: (modelId: string) => Promise<void>;
   createSuite: (input: {
     title: string;

@@ -372,67 +372,21 @@ function readAttachment(value: unknown): ModelTestAttachment | null {
 
 export function createStarterWorkspace(): ModelTestWorkspace {
   const timestamp = Date.now();
-  const opusId = makeLocalId("model");
-  const geminiId = makeLocalId("model");
   const suiteId = makeLocalId("suite");
-  const challengeId = makeLocalId("challenge");
 
   return {
-    models: [
-      {
-        _id: opusId,
-        name: "Opus 4.5",
-        provider: "Anthropic",
-        createdAt: timestamp,
-        updatedAt: timestamp,
-      },
-      {
-        _id: geminiId,
-        name: "Gemini 3",
-        provider: "Google",
-        createdAt: timestamp,
-        updatedAt: timestamp,
-      },
-    ],
+    models: [],
     suites: [
       {
         _id: suiteId,
-        title: "Opus 4.5 vs Gemini 3",
-        description: "Starter comparison suite for coding model evaluations.",
+        title: "Untitled model test",
         status: "draft",
         createdAt: timestamp,
         updatedAt: timestamp,
       },
     ],
-    suiteModels: [
-      {
-        _id: makeLocalId("suite_model"),
-        suiteId,
-        modelId: opusId,
-        order: 0,
-        createdAt: timestamp,
-      },
-      {
-        _id: makeLocalId("suite_model"),
-        suiteId,
-        modelId: geminiId,
-        order: 1,
-        createdAt: timestamp,
-      },
-    ],
-    challenges: [
-      {
-        _id: challengeId,
-        suiteId,
-        title: "Feature implementation",
-        promptText: "Build the requested feature with clean architecture.",
-        expectedOutcome:
-          "The result matches the prompt and remains maintainable.",
-        order: 0,
-        createdAt: timestamp,
-        updatedAt: timestamp,
-      },
-    ],
+    suiteModels: [],
+    challenges: [],
     results: [],
     attachments: [],
   };

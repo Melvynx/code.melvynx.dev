@@ -83,6 +83,7 @@ function ConvexModelTestBoardContent({ systemPrompts }: Props) {
   const workspace = useQuery(api.modelTests.listWorkspace);
   const verifyAdminPassword = useMutation(api.modelTests.verifyAdminPassword);
   const createModel = useMutation(api.modelTests.createModel);
+  const updateModel = useMutation(api.modelTests.updateModel);
   const createSuite = useMutation(api.modelTests.createSuite);
   const updateSuite = useMutation(api.modelTests.updateSuite);
   const setSuiteModels = useMutation(api.modelTests.setSuiteModels);
@@ -119,7 +120,14 @@ function ConvexModelTestBoardContent({ systemPrompts }: Props) {
       setAdminPassword("");
     },
     createModel: async (input) => {
-      await createModel({ adminPassword: requirePassword(), ...input });
+      return String(await createModel({ adminPassword: requirePassword(), ...input }));
+    },
+    updateModel: async (modelId, input) => {
+      await updateModel({
+        adminPassword: requirePassword(),
+        modelId: asModelId(modelId),
+        ...input,
+      });
     },
     deleteModel: async (modelId) => {
       await deleteModelWithImages({

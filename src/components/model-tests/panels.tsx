@@ -127,14 +127,10 @@ export function EmptyState({
       <div className="mb-4 flex size-12 items-center justify-center rounded-lg border bg-muted/40">
         <BarChart3 className="size-5 text-muted-foreground" />
       </div>
-      <h2 className="text-lg font-semibold">No test suites yet</h2>
-      <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
-        Create a suite, add the models you want to compare, then add
-        challenges and result evidence for each model.
-      </p>
+      <h2 className="text-lg font-semibold">No model test yet</h2>
       <Button className="mt-5" disabled={!canWrite || busy} onClick={onSeed}>
         <Sparkles className="size-4" />
-        Create starter comparison
+        Create test
       </Button>
     </div>
   );
