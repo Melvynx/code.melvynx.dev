@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/table";
 import type { ToolVersion } from "@/lib/types";
 import { Suspense } from "react";
-import { Check, Minus, X } from "lucide-react";
+import { Check, X } from "lucide-react";
 
 interface PageProps {
   searchParams: Promise<{ left?: string; right?: string }>;
