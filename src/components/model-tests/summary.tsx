@@ -1,9 +1,10 @@
 "use client";
 
+import { Trophy } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { formatDuration, scoreResult, type ModelTestChallenge, type ModelTestModel, type ModelTestResult, type ModelTestSuite } from "@/lib/model-tests";
 
 export function SummaryPanel({
-  suite,
   selectedModels,
   challenges,
   results,
@@ -42,44 +43,71 @@ export function SummaryPanel({
     })
     .sort((a, b) => (b.average ?? -1) - (a.average ?? -1));
 
+  const topAverage = rows[0]?.average ?? null;
+
   return (
-    <section className="rounded-lg border p-4">
-      <div className="mb-4">
-        <h2 className="font-semibold">Summary: {suite.title}</h2>
+    <section className="rounded-xl border bg-card">
+      <div className="flex items-center justify-between border-b px-4 py-3">
+        <h2 className="text-sm font-semibold tracking-tight">Ranking</h2>
+        <span className="font-mono text-xs tabular-nums text-muted-foreground">
+          {rows.length} models · {challenges.length} challenges
+        </span>
       </div>
+
       {rows.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No model selected.</p>
+        <p className="px-4 py-8 text-center text-sm text-muted-foreground">
+          Add a model to start ranking.
+        </p>
       ) : (
-        <div className="space-y-2">
-          {rows.map((row, index) => (
-            <div
-              key={row.model._id}
-              className="grid gap-3 rounded-md border px-3 py-3 sm:grid-cols-[36px_minmax(0,1fr)_120px_120px_90px]"
-            >
-              <div className="flex size-8 items-center justify-center rounded-md bg-muted text-sm font-semibold">
-                {index + 1}
-              </div>
-              <div className="min-w-0">
-                <div className="truncate font-medium">{row.model.name}</div>
-                <div className="truncate text-xs text-muted-foreground">
-                  {row.model.provider || "No provider"}
+        <ol className="divide-y">
+          {rows.map((row, index) => {
+            const fraction = row.average ? Math.max(0, Math.min(1, row.average / 5)) : 0;
+            const isLeader = index === 0 && row.average !== null && row.average === topAverage;
+
+            return (
+              <li
+                key={row.model._id}
+                className="grid items-center gap-3 px-4 py-3 sm:grid-cols-[2rem_minmax(0,1fr)_minmax(140px,200px)_88px_72px]"
+              >
+                <div
+                  className={cn(
+                    "flex size-7 items-center justify-center rounded-md font-mono text-xs font-semibold tabular-nums",
+                    isLeader
+                      ? "bg-foreground text-background"
+                      : "bg-muted text-muted-foreground",
+                  )}
+                >
+                  {isLeader ? <Trophy className="size-3.5" /> : index + 1}
                 </div>
-              </div>
-              <SummaryValue
-                label="Average"
-                value={row.average ? `${row.average.toFixed(2)}/5` : "-"}
-              />
-              <SummaryValue
-                label="Time"
-                value={formatDuration(row.averageDuration)}
-              />
-              <SummaryValue
-                label="Done"
-                value={`${row.completed}/${challenges.length}`}
-              />
-            </div>
-          ))}
-        </div>
+
+                <div className="min-w-0">
+                  <div className="truncate text-sm font-medium">{row.model.name}</div>
+                  <div className="truncate font-mono text-xs text-muted-foreground">
+                    {row.model.provider || "No provider"}
+                  </div>
+                </div>
+
+                <div className="hidden items-center gap-2 sm:flex">
+                  <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+                    <div
+                      className="h-full rounded-full bg-foreground"
+                      style={{ width: `${fraction * 100}%` }}
+                    />
+                  </div>
+                  <span className="w-12 shrink-0 text-right font-mono text-sm font-semibold tabular-nums">
+                    {row.average ? row.average.toFixed(2) : "—"}
+                  </span>
+                </div>
+
+                <SummaryValue label="Time" value={formatDuration(row.averageDuration)} />
+                <SummaryValue
+                  label="Done"
+                  value={`${row.completed}/${challenges.length}`}
+                />
+              </li>
+            );
+          })}
+        </ol>
       )}
     </section>
   );
@@ -87,9 +115,11 @@ export function SummaryPanel({
 
 function SummaryValue({ label, value }: { label: string; value: string }) {
   return (
-    <div>
-      <div className="text-sm font-medium">{value}</div>
-      <div className="text-xs text-muted-foreground">{label}</div>
+    <div className="text-right">
+      <div className="font-mono text-sm tabular-nums">{value}</div>
+      <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
+        {label}
+      </div>
     </div>
   );
 }

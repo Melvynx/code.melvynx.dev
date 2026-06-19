@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Camera, FileImage, Loader2, Minus, Plus, Save, Trash2, Upload, X } from "lucide-react";
+import { Camera, ImageIcon, Loader2, Plus, Save, Trash2, Upload, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -99,101 +99,108 @@ function ResultDialogEditor({
   const disabled = !canWrite || busy;
 
   return (
-      <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-3xl">
-        <DialogHeader>
-          <DialogTitle>
-            {editing.model.name}: {editing.challenge.title}
+      <DialogContent className="max-h-[92vh] gap-0 overflow-y-auto p-0 sm:max-w-3xl">
+        <DialogHeader className="border-b px-6 py-4 text-left">
+          <DialogTitle className="flex items-center gap-2 text-base">
+            {editing.model.name}
+            {editing.model.provider && (
+              <span className="font-mono text-xs font-normal text-muted-foreground">
+                {editing.model.provider}
+              </span>
+            )}
           </DialogTitle>
-          <DialogDescription>
-            Score the result, record evidence, and attach final shots.
-          </DialogDescription>
+          <DialogDescription>{editing.challenge.title}</DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-5">
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div>
-              <label htmlFor="result-duration" className="text-sm font-medium">
-                Time spent
-              </label>
-              <Input
-                id="result-duration"
-                type="number"
-                min="0"
-                step="0.1"
-                value={durationSeconds}
-                onChange={(event) => setDurationSeconds(event.target.value)}
-                placeholder="Seconds"
-                disabled={disabled}
-                className="mt-1"
-              />
+        <div className="grid gap-6 px-6 py-5">
+          <FieldGroup label="Run">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <label htmlFor="result-duration" className="text-xs font-medium text-muted-foreground">
+                  Time spent (seconds)
+                </label>
+                <Input
+                  id="result-duration"
+                  type="number"
+                  min="0"
+                  step="0.1"
+                  value={durationSeconds}
+                  onChange={(event) => setDurationSeconds(event.target.value)}
+                  placeholder="0"
+                  disabled={disabled}
+                  className="font-mono tabular-nums"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label htmlFor="result-shots" className="text-xs font-medium text-muted-foreground">
+                  Shots
+                </label>
+                <Input
+                  id="result-shots"
+                  type="number"
+                  min="1"
+                  step="1"
+                  value={shots}
+                  onChange={(event) => setShots(event.target.value)}
+                  placeholder="1"
+                  disabled={disabled}
+                  className="font-mono tabular-nums"
+                />
+              </div>
             </div>
-            <div>
-              <label htmlFor="result-shots" className="text-sm font-medium">
-                Shots
-              </label>
-              <Input
-                id="result-shots"
-                type="number"
-                min="1"
-                step="1"
-                value={shots}
-                onChange={(event) => setShots(event.target.value)}
-                placeholder="Attempts"
-                disabled={disabled}
-                className="mt-1"
-              />
-            </div>
-          </div>
+          </FieldGroup>
 
-          <div className="grid gap-3">
-            <RubricSlider
-              value={codeQuality}
-              item={RUBRIC_ITEMS[0]}
-              disabled={disabled}
-              onChange={setCodeQuality}
-            />
-            <RubricSlider
-              value={featureCoverage}
-              item={RUBRIC_ITEMS[1]}
-              disabled={disabled}
-              onChange={setFeatureCoverage}
-            />
-            <RubricSlider
-              value={reliability}
-              item={RUBRIC_ITEMS[2]}
-              disabled={disabled}
-              onChange={setReliability}
-            />
-          </div>
+          <FieldGroup label="Rubric">
+            <div className="overflow-hidden rounded-lg border">
+              <RubricRating
+                value={codeQuality}
+                item={RUBRIC_ITEMS[0]}
+                disabled={disabled}
+                onChange={setCodeQuality}
+              />
+              <RubricRating
+                value={featureCoverage}
+                item={RUBRIC_ITEMS[1]}
+                disabled={disabled}
+                onChange={setFeatureCoverage}
+              />
+              <RubricRating
+                value={reliability}
+                item={RUBRIC_ITEMS[2]}
+                disabled={disabled}
+                onChange={setReliability}
+                last
+              />
+            </div>
+          </FieldGroup>
 
           <div className="grid gap-4 md:grid-cols-2">
             <FindingListEditor
               title="Positive points"
+              tone="positive"
               values={positives}
               disabled={disabled}
               onChange={setPositives}
             />
             <FindingListEditor
               title="Negative points"
+              tone="negative"
               values={negatives}
               disabled={disabled}
               onChange={setNegatives}
             />
           </div>
 
-          <div>
-            <label htmlFor="result-notes" className="text-sm font-medium">
-              Notes
-            </label>
+          <FieldGroup label="Notes">
             <Textarea
               id="result-notes"
               value={notes}
               onChange={(event) => setNotes(event.target.value)}
-              placeholder="What happened during the test?"
+              placeholder="What happened during the run?"
               disabled={disabled}
-              className="mt-1"
+              className="min-h-20"
             />
-          </div>
+          </FieldGroup>
 
           <ShotUploader
             attachments={attachments}
@@ -208,14 +215,15 @@ function ResultDialogEditor({
           />
         </div>
 
-        <DialogFooter className="gap-2 sm:justify-between">
+        <DialogFooter className="gap-2 border-t px-6 py-4 sm:justify-between">
           <div>
             {editing.result && (
               <Button
                 type="button"
-                variant="destructive"
+                variant="ghost"
                 disabled={disabled}
                 onClick={() => onDelete(editing.result!._id)}
+                className="text-destructive hover:bg-destructive/10 hover:text-destructive"
               >
                 <Trash2 className="size-4" />
                 Delete result
@@ -257,44 +265,72 @@ function ResultDialogEditor({
   );
 }
 
-function RubricSlider({
+function FieldGroup({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-2">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+        {label}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function RubricRating({
   item,
   value,
   disabled,
+  last,
   onChange,
 }: {
   item: (typeof RUBRIC_ITEMS)[number];
   value: number;
   disabled: boolean;
+  last?: boolean;
   onChange: (value: number) => void;
 }) {
   return (
-    <div className="rounded-lg border p-3">
-      <div className="mb-2 flex items-start justify-between gap-3">
-        <div>
-          <label htmlFor={item.key} className="text-sm font-medium">
-            {item.label}
-          </label>
-          <p className="text-xs text-muted-foreground">{item.description}</p>
-        </div>
-        <div className="flex size-8 items-center justify-center rounded-md bg-primary text-sm font-semibold text-primary-foreground">
-          {value}
-        </div>
+    <div
+      className={cn(
+        "flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:justify-between",
+        !last && "border-b",
+      )}
+    >
+      <div className="min-w-0">
+        <div className="text-sm font-medium">{item.label}</div>
+        <p className="text-xs text-muted-foreground">{item.description}</p>
       </div>
-      <input
-        id={item.key}
-        type="range"
-        min="1"
-        max="5"
-        step="1"
-        value={value}
-        disabled={disabled}
-        onChange={(event) => onChange(Number(event.target.value))}
-        className="h-2 w-full accent-primary"
-      />
-      <div className="mt-1 flex justify-between text-[11px] text-muted-foreground">
-        <span>Weak</span>
-        <span>Excellent</span>
+      <div
+        role="radiogroup"
+        aria-label={item.label}
+        className="inline-flex shrink-0 self-start overflow-hidden rounded-md border sm:self-auto"
+      >
+        {[1, 2, 3, 4, 5].map((option) => (
+          <button
+            key={option}
+            type="button"
+            role="radio"
+            aria-checked={value === option}
+            aria-label={`${item.label}: ${option}`}
+            disabled={disabled}
+            onClick={() => onChange(option)}
+            className={cn(
+              "size-9 border-l font-mono text-sm tabular-nums transition-colors first:border-l-0 focus-visible:relative focus-visible:z-10 focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none",
+              value === option
+                ? "bg-primary font-semibold text-primary-foreground"
+                : "bg-background text-muted-foreground hover:bg-muted",
+              disabled && "cursor-not-allowed opacity-50",
+            )}
+          >
+            {option}
+          </button>
+        ))}
       </div>
     </div>
   );
@@ -302,28 +338,47 @@ function RubricSlider({
 
 function FindingListEditor({
   title,
+  tone,
   values,
   disabled,
   onChange,
 }: {
   title: string;
+  tone: "positive" | "negative";
   values: string[];
   disabled: boolean;
   onChange: (values: string[]) => void;
 }) {
   const [draft, setDraft] = useState("");
+  const marker =
+    tone === "positive"
+      ? "text-emerald-600 dark:text-emerald-400"
+      : "text-destructive";
+
+  function commitDraft() {
+    if (!draft.trim()) return;
+    onChange([...values, draft.trim()]);
+    setDraft("");
+  }
 
   return (
     <div className="rounded-lg border p-3">
-      <div className="mb-2 text-sm font-medium">{title}</div>
-      <div className="space-y-2">
+      <div className="mb-2 flex items-center justify-between">
+        <span className="text-sm font-medium">{title}</span>
+        <span className="font-mono text-xs tabular-nums text-muted-foreground">
+          {values.length}
+        </span>
+      </div>
+      <div className="space-y-1.5">
         {values.length === 0 ? (
           <p className="text-xs text-muted-foreground">No points yet.</p>
         ) : (
           values.map((value, index) => (
             <div key={`${value}-${index}`} className="flex items-start gap-2">
-              <Minus className="mt-1 size-3.5 text-muted-foreground" />
-              <span className="min-w-0 flex-1 text-sm">{value}</span>
+              <span className={cn("mt-px font-mono text-sm leading-5", marker)}>
+                {tone === "positive" ? "+" : "−"}
+              </span>
+              <span className="min-w-0 flex-1 text-sm leading-5">{value}</span>
               <Button
                 type="button"
                 size="icon-xs"
@@ -344,21 +399,25 @@ function FindingListEditor({
         <Input
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              commitDraft();
+            }
+          }}
           placeholder="Add a point"
           disabled={disabled}
+          className="h-8"
         />
         <Button
           type="button"
           variant="outline"
-          size="sm"
+          size="icon-sm"
           disabled={disabled || !draft.trim()}
-          onClick={() => {
-            onChange([...values, draft.trim()]);
-            setDraft("");
-          }}
+          aria-label={`Add ${tone} point`}
+          onClick={commitDraft}
         >
           <Plus className="size-4" />
-          Add
         </Button>
       </div>
     </div>
@@ -383,33 +442,30 @@ function ShotUploader({
   onRemoveAttachment: (attachmentId: string) => void;
 }) {
   return (
-    <div className="rounded-lg border p-3">
-      <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <div className="text-sm font-medium">Shots</div>
-          <p className="text-xs text-muted-foreground">
-            Attach screenshots or generated output images for the result.
-          </p>
-        </div>
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+          Shots
+        </span>
         {!uploadsConfigured && (
           <Badge variant="outline" className="gap-1.5">
             <Camera className="size-3" />
-            R2 missing
+            R2 not configured
           </Badge>
         )}
       </div>
       <label
         className={cn(
-          "flex cursor-pointer flex-col items-center justify-center rounded-md border border-dashed px-4 py-5 text-center transition-colors",
+          "flex cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed px-4 py-5 text-center transition-colors",
           disabled || !uploadsConfigured
             ? "cursor-not-allowed opacity-60"
-            : "hover:bg-muted/60",
+            : "hover:border-foreground/20 hover:bg-muted/40",
         )}
       >
         <Upload className="mb-2 size-5 text-muted-foreground" />
-        <span className="text-sm font-medium">Upload images</span>
+        <span className="text-sm font-medium">Upload screenshots</span>
         <span className="text-xs text-muted-foreground">
-          PNG, JPG, GIF, or WebP up to the backend limit.
+          PNG, JPG, GIF, or WebP
         </span>
         <input
           type="file"
@@ -426,7 +482,7 @@ function ShotUploader({
       </label>
 
       {(attachments.length > 0 || files.length > 0) && (
-        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+        <div className="grid gap-2 sm:grid-cols-2">
           {attachments.map((attachment) => (
             <div key={attachment._id} className="flex items-center gap-2 rounded-md border p-2">
               {attachment.url ? (
@@ -438,14 +494,14 @@ function ShotUploader({
                 />
               ) : (
                 <div className="flex size-12 items-center justify-center rounded bg-muted">
-                  <FileImage className="size-5 text-muted-foreground" />
+                  <ImageIcon className="size-5 text-muted-foreground" />
                 </div>
               )}
               <div className="min-w-0 flex-1">
                 <div className="truncate text-sm font-medium">
                   {attachment.fileName}
                 </div>
-                <div className="text-xs text-muted-foreground">
+                <div className="font-mono text-xs tabular-nums text-muted-foreground">
                   {Math.round(attachment.size / 1024)} KB
                 </div>
               </div>
@@ -456,15 +512,16 @@ function ShotUploader({
                 disabled={disabled}
                 aria-label={`Remove ${attachment.fileName}`}
                 onClick={() => onRemoveAttachment(attachment._id)}
+                className="text-muted-foreground hover:text-destructive"
               >
                 <Trash2 className="size-3.5" />
               </Button>
             </div>
           ))}
           {files.map((file, index) => (
-            <div key={`${file.name}-${index}`} className="flex items-center gap-2 rounded-md border p-2">
+            <div key={`${file.name}-${index}`} className="flex items-center gap-2 rounded-md border border-dashed p-2">
               <div className="flex size-12 items-center justify-center rounded bg-muted">
-                <FileImage className="size-5 text-muted-foreground" />
+                <ImageIcon className="size-5 text-muted-foreground" />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="truncate text-sm font-medium">{file.name}</div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Camera, Database, X } from "lucide-react";
+import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   resultKey,
@@ -132,25 +132,20 @@ export function ModelTestExperience({
   return (
     <div className="space-y-6">
       <header className="flex flex-col gap-3 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="min-w-0">
-          <h1 className="text-2xl font-semibold tracking-tight">Model tests</h1>
-        </div>
+        <h1 className="text-2xl font-semibold tracking-tight">Model tests</h1>
 
         <div className="flex flex-wrap items-center gap-2">
-          <StatusIcon
-            active={actions.mode === "convex"}
-            label={actions.mode === "convex" ? "Convex connected" : "Local mode"}
-            icon={<Database className="size-3.5" />}
-          />
-          <StatusIcon
-            active={actions.uploadsConfigured}
-            label={
-              actions.uploadsConfigured
-                ? "Image uploads enabled"
-                : "Image uploads unavailable"
-            }
-            icon={<Camera className="size-3.5" />}
-          />
+          <div className="flex items-center gap-0.5 rounded-lg border bg-card p-0.5">
+            <StatusPill
+              active={actions.mode === "convex"}
+              label={actions.mode === "convex" ? "Convex" : "Local"}
+            />
+            <span className="h-4 w-px bg-border" />
+            <StatusPill
+              active={actions.uploadsConfigured}
+              label={actions.uploadsConfigured ? "Uploads" : "No uploads"}
+            />
+          </div>
           <AdminPanel actions={actions} onNotice={setNotice} />
         </div>
       </header>
@@ -326,27 +321,18 @@ export function ModelTestExperience({
   );
 }
 
-function StatusIcon({
-  active,
-  label,
-  icon,
-}: {
-  active: boolean;
-  label: string;
-  icon: React.ReactNode;
-}) {
+function StatusPill({ active, label }: { active: boolean; label: string }) {
   return (
-    <span
-      title={label}
-      aria-label={label}
-      className={cn(
-        "inline-flex size-8 items-center justify-center rounded-md border transition-colors",
-        active
-          ? "border-border bg-muted text-foreground"
-          : "border-dashed text-muted-foreground",
-      )}
-    >
-      {icon}
+    <span className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium">
+      <span
+        className={cn(
+          "size-1.5 rounded-full",
+          active ? "bg-emerald-500" : "bg-muted-foreground/40",
+        )}
+      />
+      <span className={active ? "text-foreground" : "text-muted-foreground"}>
+        {label}
+      </span>
     </span>
   );
 }

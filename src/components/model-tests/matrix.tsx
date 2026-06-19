@@ -1,8 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Clock, FileImage, Pencil, Plus, Save, Trash2, X } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Clock, ImageIcon, Pencil, Plus, Save, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -23,7 +22,16 @@ import type { TestPrompt } from "./types";
 import { compactText } from "./utils";
 
 const selectClassName =
-  "h-9 rounded-md border border-input bg-background px-3 text-sm shadow-xs outline-none transition-colors focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50";
+  "h-8 rounded-md border border-input bg-background px-2.5 text-sm shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50";
+
+const inlineFieldClassName =
+  "border-transparent bg-transparent px-2 shadow-none hover:bg-muted/60 focus-visible:bg-background dark:bg-transparent dark:hover:bg-muted/60";
+
+const STATUS_META: Record<ModelTestStatus, { label: string; dot: string }> = {
+  draft: { label: "Draft", dot: "bg-muted-foreground/40" },
+  running: { label: "Running", dot: "bg-amber-500" },
+  complete: { label: "Complete", dot: "bg-emerald-500" },
+};
 
 type ModelInput = {
   name: string;
@@ -102,7 +110,7 @@ export function ResultsMatrix({
   const expectedResults = challenges.length * selectedModels.length;
 
   return (
-    <section className="overflow-hidden rounded-lg border bg-card">
+    <section className="overflow-hidden rounded-xl border bg-card">
       <SuiteToolbar
         key={selectedSuite._id}
         suites={suites}
@@ -121,14 +129,14 @@ export function ResultsMatrix({
       <div className="overflow-x-auto">
         <table className="w-full min-w-[1040px] border-collapse text-sm">
           <thead>
-            <tr className="border-b bg-muted/45">
-              <th className="sticky left-0 z-20 w-[320px] border-r bg-muted px-4 py-3 text-left font-medium">
+            <tr className="border-b bg-muted/40">
+              <th className="sticky left-0 z-20 w-[320px] border-r bg-muted/60 px-4 py-2.5 text-left text-[11px] font-medium uppercase tracking-wide text-muted-foreground backdrop-blur">
                 Challenge
               </th>
               {selectedModels.map((model) => (
                 <th
                   key={model._id}
-                  className="min-w-[250px] border-r px-3 py-3 text-left align-top last:border-r-0"
+                  className="group/col min-w-[244px] border-r px-3 py-2.5 text-left align-top last:border-r-0"
                 >
                   <ModelHeaderEditor
                     model={model}
@@ -139,7 +147,7 @@ export function ResultsMatrix({
                   />
                 </th>
               ))}
-              <th className="min-w-[260px] px-3 py-3 text-left align-top">
+              <th className="min-w-[252px] px-3 py-2.5 text-left align-top">
                 <AddModelColumn
                   availableModels={availableModels}
                   canWrite={canWrite}
@@ -151,10 +159,11 @@ export function ResultsMatrix({
             </tr>
           </thead>
           <tbody>
-            {challenges.map((challenge) => (
-              <tr key={challenge._id} className="border-b last:border-b-0">
-                <td className="sticky left-0 z-10 border-r bg-card p-4 align-top">
+            {challenges.map((challenge, index) => (
+              <tr key={challenge._id} className="group/row border-b last:border-b-0">
+                <td className="sticky left-0 z-10 border-r bg-card p-4 align-top group-hover/row:bg-muted/30">
                   <InlineChallengeEditor
+                    index={index}
                     challenge={challenge}
                     canWrite={canWrite}
                     busy={busy}
@@ -174,16 +183,17 @@ export function ResultsMatrix({
                     : [];
 
                   return (
-                    <td key={model._id} className="border-r p-3 align-top last:border-r-0">
+                    <td key={model._id} className="border-r p-2.5 align-top last:border-r-0">
                       <button
                         type="button"
                         disabled={!canWrite}
                         onClick={() => onEdit(challenge, model, result)}
                         className={cn(
-                          "min-h-36 w-full rounded-md border bg-background p-3 text-left transition-colors",
+                          "min-h-[8.5rem] w-full rounded-lg border bg-background p-3 text-left transition-colors",
                           canWrite
-                            ? "hover:bg-muted/60 focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none"
+                            ? "hover:border-foreground/20 hover:bg-muted/40 focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none"
                             : "cursor-not-allowed opacity-70",
+                          result ? "" : "border-dashed",
                         )}
                       >
                         {result ? (
@@ -193,17 +203,17 @@ export function ResultsMatrix({
                             attachmentCount={attachments.length}
                           />
                         ) : (
-                          <div className="flex h-full min-h-28 flex-col items-center justify-center gap-2 text-center text-muted-foreground">
-                            <Pencil className="size-4" />
-                            <span className="text-xs">Add result</span>
+                          <div className="flex h-full min-h-[7rem] flex-col items-center justify-center gap-1.5 text-muted-foreground">
+                            <Plus className="size-4" />
+                            <span className="text-xs font-medium">Add result</span>
                           </div>
                         )}
                       </button>
                     </td>
                   );
                 })}
-                <td className="p-3 align-top">
-                  <div className="min-h-36 rounded-md border border-dashed bg-muted/20" />
+                <td className="p-2.5 align-top">
+                  <div className="min-h-[8.5rem] rounded-lg border border-dashed bg-muted/15" />
                 </td>
               </tr>
             ))}
@@ -247,6 +257,7 @@ function SuiteToolbar({
   onUpdateSuite: (input: SuiteInput) => void;
 }) {
   const [title, setTitle] = useState(selectedSuite.title);
+  const status = STATUS_META[selectedSuite.status];
 
   function saveTitle() {
     const nextTitle = title.trim();
@@ -255,80 +266,108 @@ function SuiteToolbar({
   }
 
   return (
-    <div className="flex flex-col gap-3 border-b p-4 xl:flex-row xl:items-center xl:justify-between">
-      <div className="flex min-w-0 flex-1 flex-col gap-2 md:flex-row md:items-center">
-        <select
-          value={selectedSuite._id}
-          onChange={(event) => onSelectSuite(event.target.value)}
-          className={cn(selectClassName, "w-full md:w-64")}
-        >
-          {suites.map((suite) => (
-            <option key={suite._id} value={suite._id}>
-              {suite.title}
-            </option>
-          ))}
-        </select>
-        <Input
-          value={title}
-          onChange={(event) => setTitle(event.target.value)}
-          onBlur={saveTitle}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") {
-              event.currentTarget.blur();
-            }
-          }}
-          disabled={!canWrite || busy}
-          aria-label="Suite name"
-          className="min-w-0 flex-1"
-        />
-        <select
-          value={selectedSuite.status}
-          disabled={!canWrite || busy}
-          onChange={(event) =>
-            onUpdateSuite({ status: event.target.value as ModelTestStatus })
-          }
-          className={cn(selectClassName, "w-full md:w-36")}
-          aria-label="Suite status"
-        >
-          <option value="draft">Draft</option>
-          <option value="running">Running</option>
-          <option value="complete">Complete</option>
-        </select>
+    <div className="flex flex-col gap-4 border-b bg-muted/30 p-4 lg:flex-row lg:items-start lg:justify-between">
+      <div className="flex min-w-0 flex-1 flex-col gap-2.5">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <span className="font-medium uppercase tracking-wide">Suite</span>
+          <select
+            value={selectedSuite._id}
+            onChange={(event) => onSelectSuite(event.target.value)}
+            className={cn(selectClassName, "h-7 max-w-[260px] text-xs")}
+            aria-label="Select suite"
+          >
+            {suites.map((suite) => (
+              <option key={suite._id} value={suite._id}>
+                {suite.title}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <Input
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
+            onBlur={saveTitle}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") event.currentTarget.blur();
+            }}
+            disabled={!canWrite || busy}
+            aria-label="Suite name"
+            className={cn(
+              inlineFieldClassName,
+              "h-9 w-full max-w-md text-lg font-semibold tracking-tight",
+            )}
+          />
+          <div className="relative">
+            <span
+              className={cn(
+                "pointer-events-none absolute left-2.5 top-1/2 size-2 -translate-y-1/2 rounded-full",
+                status.dot,
+              )}
+            />
+            <select
+              value={selectedSuite.status}
+              disabled={!canWrite || busy}
+              onChange={(event) =>
+                onUpdateSuite({ status: event.target.value as ModelTestStatus })
+              }
+              className={cn(selectClassName, "h-8 w-[130px] pl-6")}
+              aria-label="Suite status"
+            >
+              <option value="draft">Draft</option>
+              <option value="running">Running</option>
+              <option value="complete">Complete</option>
+            </select>
+          </div>
+        </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
-        <Metric label="Done" value={`${completion}%`} />
-        <Metric label="Results" value={`${resultCount}/${expectedResults}`} />
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={!canWrite || busy}
-          onClick={onCreateSuite}
-        >
-          <Plus className="size-4" />
-          Suite
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          disabled={!canWrite || busy || suites.length <= 1}
-          onClick={onDeleteSuite}
-          aria-label={`Delete ${selectedSuite.title}`}
-        >
-          <Trash2 className="size-4" />
-        </Button>
-      </div>
-    </div>
-  );
-}
+      <div className="flex items-center gap-4">
+        <div className="flex flex-col gap-1.5">
+          <div className="flex items-baseline justify-between gap-6">
+            <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              Done
+            </span>
+            <span className="font-mono text-sm font-semibold tabular-nums">
+              {completion}%
+            </span>
+          </div>
+          <div className="h-1.5 w-36 overflow-hidden rounded-full bg-muted">
+            <div
+              className="h-full rounded-full bg-foreground transition-[width] duration-500 ease-out motion-reduce:transition-none"
+              style={{ width: `${completion}%` }}
+            />
+          </div>
+          <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
+            {resultCount}/{expectedResults} results
+          </span>
+        </div>
 
-function Metric({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="min-w-20 rounded-md border bg-background px-3 py-1.5 text-center">
-      <div className="text-sm font-semibold">{value}</div>
-      <div className="text-[11px] text-muted-foreground">{label}</div>
+        <div className="flex items-center gap-1">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={!canWrite || busy}
+            onClick={onCreateSuite}
+          >
+            <Plus className="size-4" />
+            New suite
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            disabled={!canWrite || busy || suites.length <= 1}
+            onClick={onDeleteSuite}
+            aria-label={`Delete ${selectedSuite.title}`}
+            className="text-muted-foreground hover:text-destructive"
+          >
+            <Trash2 className="size-4" />
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -361,56 +400,62 @@ function ModelHeaderEditor({
   }
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-start gap-2">
-        <div className="min-w-0 flex-1 space-y-2">
-          <Input
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            onBlur={save}
-            onKeyDown={(event) => {
-              if (event.key === "Enter") event.currentTarget.blur();
-            }}
-            disabled={!canWrite || busy}
-            aria-label={`${model.name} name`}
-            className="h-9 font-medium"
-          />
-          <Input
-            value={provider}
-            onChange={(event) => setProvider(event.target.value)}
-            onBlur={save}
-            onKeyDown={(event) => {
-              if (event.key === "Enter") event.currentTarget.blur();
-            }}
-            disabled={!canWrite || busy}
-            placeholder="Provider"
-            aria-label={`${model.name} provider`}
-            className="h-8 text-xs"
-          />
-        </div>
-        <div className="flex shrink-0 flex-col gap-1">
+    <div className="flex items-start gap-1">
+      <div className="min-w-0 flex-1">
+        <Input
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          onBlur={save}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") event.currentTarget.blur();
+          }}
+          disabled={!canWrite || busy}
+          aria-label={`${model.name} name`}
+          className={cn(inlineFieldClassName, "h-7 text-sm font-medium")}
+        />
+        <Input
+          value={provider}
+          onChange={(event) => setProvider(event.target.value)}
+          onBlur={save}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") event.currentTarget.blur();
+          }}
+          disabled={!canWrite || busy}
+          placeholder="Provider"
+          aria-label={`${model.name} provider`}
+          className={cn(
+            inlineFieldClassName,
+            "h-6 font-mono text-xs text-muted-foreground",
+          )}
+        />
+      </div>
+      {canWrite && (
+        <div className="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover/col:opacity-100 group-focus-within/col:opacity-100">
+          {dirty && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-xs"
+              disabled={busy || !name.trim()}
+              onClick={save}
+              aria-label={`Save ${model.name}`}
+            >
+              <Save className="size-3.5" />
+            </Button>
+          )}
           <Button
             type="button"
             variant="ghost"
             size="icon-xs"
-            disabled={!canWrite || busy || !dirty || !name.trim()}
-            onClick={save}
-            aria-label={`Save ${model.name}`}
-          >
-            <Save className="size-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-xs"
-            disabled={!canWrite || busy}
+            disabled={busy}
             onClick={onRemove}
             aria-label={`Remove ${model.name} from suite`}
+            className="text-muted-foreground hover:text-destructive"
           >
             <X className="size-3.5" />
           </Button>
         </div>
-      </div>
+      )}
     </div>
   );
 }
@@ -433,7 +478,10 @@ function AddModelColumn({
   const [existingModelId, setExistingModelId] = useState("");
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 rounded-lg border border-dashed bg-muted/20 p-2.5">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+        Add model
+      </div>
       <form
         className="space-y-2"
         onSubmit={(event) => {
@@ -450,7 +498,7 @@ function AddModelColumn({
           placeholder="Model name"
           disabled={!canWrite || busy}
           aria-label="New model name"
-          className="h-9"
+          className="h-8"
         />
         <div className="flex gap-2">
           <Input
@@ -459,7 +507,7 @@ function AddModelColumn({
             placeholder="Provider"
             disabled={!canWrite || busy}
             aria-label="New model provider"
-            className="h-8 text-xs"
+            className="h-8 font-mono text-xs"
           />
           <Button
             type="submit"
@@ -472,15 +520,15 @@ function AddModelColumn({
         </div>
       </form>
       {availableModels.length > 0 && (
-        <div className="flex gap-2">
+        <div className="flex gap-2 border-t border-dashed pt-2">
           <select
             value={existingModelId}
             onChange={(event) => setExistingModelId(event.target.value)}
             disabled={!canWrite || busy}
-            className={cn(selectClassName, "h-8 min-w-0 flex-1 text-xs")}
+            className={cn(selectClassName, "min-w-0 flex-1 text-xs")}
             aria-label="Existing model"
           >
-            <option value="">Existing model</option>
+            <option value="">From library…</option>
             {availableModels.map((model) => (
               <option key={model._id} value={model._id}>
                 {model.name}
@@ -529,9 +577,9 @@ function AddChallengeRow({
 
   return (
     <tr>
-      <td colSpan={columnCount} className="bg-muted/20 p-3">
+      <td colSpan={columnCount} className="bg-muted/25 p-3">
         <form
-          className="grid gap-2 lg:grid-cols-[minmax(180px,0.65fr)_minmax(220px,0.75fr)_minmax(260px,1fr)_minmax(220px,0.9fr)_auto]"
+          className="grid gap-2 lg:grid-cols-[minmax(160px,0.6fr)_minmax(200px,0.7fr)_minmax(240px,1fr)_minmax(200px,0.85fr)_auto]"
           onSubmit={(event) => {
             event.preventDefault();
             if (!title.trim()) return;
@@ -548,7 +596,7 @@ function AddChallengeRow({
           <select
             defaultValue=""
             disabled={!canWrite || busy || systemPrompts.length === 0}
-            className={selectClassName}
+            className={cn(selectClassName, "h-9")}
             aria-label="Import prompt"
             onChange={(event) => {
               const prompt = systemPrompts.find(
@@ -560,7 +608,7 @@ function AddChallengeRow({
               event.target.value = "";
             }}
           >
-            <option value="">Import prompt</option>
+            <option value="">Import prompt…</option>
             {systemPrompts.map((prompt) => (
               <option key={prompt.id} value={prompt.id}>
                 {prompt.name}
@@ -578,7 +626,7 @@ function AddChallengeRow({
             value={promptText}
             onChange={(event) => setPromptText(event.target.value)}
             placeholder="Prompt or task"
-            className="min-h-10 resize-y"
+            className="min-h-9 resize-y"
             disabled={!canWrite || busy}
             aria-label="Prompt or task"
           />
@@ -586,7 +634,7 @@ function AddChallengeRow({
             value={expectedOutcome}
             onChange={(event) => setExpectedOutcome(event.target.value)}
             placeholder="Expected outcome"
-            className="min-h-10 resize-y"
+            className="min-h-9 resize-y"
             disabled={!canWrite || busy}
             aria-label="Expected outcome"
           />
@@ -605,12 +653,14 @@ function AddChallengeRow({
 }
 
 function InlineChallengeEditor({
+  index,
   challenge,
   canWrite,
   busy,
   onDelete,
   onUpdate,
 }: {
+  index: number;
   challenge: ModelTestChallenge;
   canWrite: boolean;
   busy: boolean;
@@ -643,16 +693,19 @@ function InlineChallengeEditor({
           value={title}
           onChange={(event) => setTitle(event.target.value)}
           disabled={busy}
+          className="font-medium"
         />
         <Textarea
           value={promptText}
           onChange={(event) => setPromptText(event.target.value)}
+          placeholder="Prompt or task"
           className="min-h-20"
           disabled={busy}
         />
         <Textarea
           value={expectedOutcome}
           onChange={(event) => setExpectedOutcome(event.target.value)}
+          placeholder="Expected outcome"
           className="min-h-20"
           disabled={busy}
         />
@@ -670,6 +723,7 @@ function InlineChallengeEditor({
               setEditing(false);
             }}
           >
+            <Save className="size-3.5" />
             Save
           </Button>
           <Button
@@ -691,49 +745,54 @@ function InlineChallengeEditor({
   }
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-start justify-between gap-2">
+    <div className="flex items-start justify-between gap-2">
+      <div className="flex min-w-0 gap-2.5">
+        <span className="mt-0.5 font-mono text-xs tabular-nums text-muted-foreground">
+          {String(index + 1).padStart(2, "0")}
+        </span>
         <div className="min-w-0">
-          <div className="font-medium">{challenge.title}</div>
+          <div className="font-medium leading-snug">{challenge.title}</div>
           {challenge.promptText && (
             <p className="mt-1 line-clamp-3 text-xs leading-5 text-muted-foreground">
               {challenge.promptText}
             </p>
           )}
           {challenge.expectedOutcome && (
-            <p className="mt-2 line-clamp-2 text-xs leading-5 text-muted-foreground">
+            <p className="mt-1.5 line-clamp-2 text-xs leading-5 text-muted-foreground/80">
+              <span className="font-medium text-muted-foreground">Expected: </span>
               {challenge.expectedOutcome}
             </p>
           )}
         </div>
-        {canWrite && (
-          <div className="flex shrink-0 gap-1">
-            <Button
-              type="button"
-              size="icon-xs"
-              variant="ghost"
-              aria-label={`Edit ${challenge.title}`}
-              onClick={() => {
-                setTitle(challenge.title);
-                setPromptText(challenge.promptText ?? "");
-                setExpectedOutcome(challenge.expectedOutcome ?? "");
-                setEditing(true);
-              }}
-            >
-              <Pencil className="size-3.5" />
-            </Button>
-            <Button
-              type="button"
-              size="icon-xs"
-              variant="ghost"
-              aria-label={`Delete ${challenge.title}`}
-              onClick={onDelete}
-            >
-              <Trash2 className="size-3.5" />
-            </Button>
-          </div>
-        )}
       </div>
+      {canWrite && (
+        <div className="flex shrink-0 gap-0.5 opacity-0 transition-opacity group-hover/row:opacity-100">
+          <Button
+            type="button"
+            size="icon-xs"
+            variant="ghost"
+            aria-label={`Edit ${challenge.title}`}
+            onClick={() => {
+              setTitle(challenge.title);
+              setPromptText(challenge.promptText ?? "");
+              setExpectedOutcome(challenge.expectedOutcome ?? "");
+              setEditing(true);
+            }}
+          >
+            <Pencil className="size-3.5" />
+          </Button>
+          <Button
+            type="button"
+            size="icon-xs"
+            variant="ghost"
+            aria-label={`Delete ${challenge.title}`}
+            onClick={onDelete}
+            className="text-muted-foreground hover:text-destructive"
+          >
+            <Trash2 className="size-3.5" />
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
@@ -747,43 +806,66 @@ function ResultCell({
   score: number | null;
   attachmentCount: number;
 }) {
+  const fraction = score ? Math.max(0, Math.min(1, score / 5)) : 0;
+
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <div className="text-2xl font-semibold">
-          {score ? score.toFixed(1) : "New"}
+    <div className="flex flex-col gap-2.5">
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex items-baseline gap-1">
+          <span className="font-mono text-2xl font-semibold leading-none tabular-nums">
+            {score ? score.toFixed(1) : "—"}
+          </span>
+          <span className="text-xs text-muted-foreground">/5</span>
         </div>
-        <Badge variant={score ? "secondary" : "outline"}>/5</Badge>
+        <div className="flex items-center gap-2 pt-0.5 font-mono text-[11px] tabular-nums text-muted-foreground">
+          <span className="inline-flex items-center gap-1">
+            <Clock className="size-3" />
+            {formatDuration(result.durationSeconds)}
+          </span>
+          <span>{result.shots ?? 0}×</span>
+        </div>
       </div>
-      <div className="grid grid-cols-3 gap-1.5">
+
+      <div className="h-1 w-full overflow-hidden rounded-full bg-muted">
+        <div
+          className="h-full rounded-full bg-foreground"
+          style={{ width: `${fraction * 100}%` }}
+        />
+      </div>
+
+      <div className="grid grid-cols-3 divide-x divide-border overflow-hidden rounded-md border">
         {RUBRIC_ITEMS.map((item) => (
-          <div key={item.key} className="rounded bg-muted/60 px-2 py-1">
-            <div className="text-xs font-medium">{result[item.key] ?? "-"}</div>
-            <div className="truncate text-[10px] text-muted-foreground">
+          <div key={item.key} className="px-2 py-1.5 text-center">
+            <div className="font-mono text-sm font-medium tabular-nums">
+              {result[item.key] ?? "—"}
+            </div>
+            <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
               {item.shortLabel}
             </div>
           </div>
         ))}
       </div>
-      <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-        <span className="inline-flex items-center gap-1">
-          <Clock className="size-3" />
-          {formatDuration(result.durationSeconds)}
-        </span>
-        <span>{result.shots ?? 0} shots</span>
-        {attachmentCount > 0 && (
-          <span className="inline-flex items-center gap-1">
-            <FileImage className="size-3" />
-            {attachmentCount}
-          </span>
-        )}
-      </div>
-      {(result.positives.length > 0 || result.negatives.length > 0) && (
-        <div className="flex gap-2 text-xs">
-          <span className="text-emerald-700 dark:text-emerald-300">
-            +{result.positives.length}
-          </span>
-          <span className="text-destructive">-{result.negatives.length}</span>
+
+      {(result.positives.length > 0 ||
+        result.negatives.length > 0 ||
+        attachmentCount > 0) && (
+        <div className="flex items-center gap-3 font-mono text-[11px] tabular-nums">
+          {result.positives.length > 0 && (
+            <span className="text-emerald-600 dark:text-emerald-400">
+              +{result.positives.length}
+            </span>
+          )}
+          {result.negatives.length > 0 && (
+            <span className="text-destructive">
+              −{result.negatives.length}
+            </span>
+          )}
+          {attachmentCount > 0 && (
+            <span className="ml-auto inline-flex items-center gap-1 text-muted-foreground">
+              <ImageIcon className="size-3" />
+              {attachmentCount}
+            </span>
+          )}
         </div>
       )}
     </div>
