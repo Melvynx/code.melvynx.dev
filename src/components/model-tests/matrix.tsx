@@ -189,11 +189,13 @@ export function ResultsMatrix({
                         disabled={!canWrite}
                         onClick={() => onEdit(challenge, model, result)}
                         className={cn(
-                          "min-h-[8.5rem] w-full rounded-lg border bg-background p-3 text-left transition-colors",
+                          "min-h-[8.5rem] w-full rounded-lg border p-3 text-left transition-colors",
+                          result
+                            ? "border-border bg-background"
+                            : "border-dashed border-border/60 bg-transparent",
                           canWrite
-                            ? "hover:border-foreground/20 hover:bg-muted/40 focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none"
+                            ? "hover:border-foreground/25 hover:bg-muted/40 focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none"
                             : "cursor-not-allowed opacity-70",
-                          result ? "" : "border-dashed",
                         )}
                       >
                         {result ? (
@@ -203,7 +205,7 @@ export function ResultsMatrix({
                             attachmentCount={attachments.length}
                           />
                         ) : (
-                          <div className="flex h-full min-h-[7rem] flex-col items-center justify-center gap-1.5 text-muted-foreground">
+                          <div className="flex h-full min-h-[7rem] flex-col items-center justify-center gap-1.5 text-muted-foreground/55">
                             <Plus className="size-4" />
                             <span className="text-xs font-medium">Add result</span>
                           </div>
@@ -213,7 +215,7 @@ export function ResultsMatrix({
                   );
                 })}
                 <td className="p-2.5 align-top">
-                  <div className="min-h-[8.5rem] rounded-lg border border-dashed bg-muted/15" />
+                  <div className="min-h-[8.5rem] rounded-lg border border-dashed border-border/50" />
                 </td>
               </tr>
             ))}
@@ -809,7 +811,7 @@ function ResultCell({
   const fraction = score ? Math.max(0, Math.min(1, score / 5)) : 0;
 
   return (
-    <div className="flex flex-col gap-2.5">
+    <div className="flex flex-col gap-2">
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-baseline gap-1">
           <span className="font-mono text-2xl font-semibold leading-none tabular-nums">
@@ -817,11 +819,12 @@ function ResultCell({
           </span>
           <span className="text-xs text-muted-foreground">/5</span>
         </div>
-        <div className="flex items-center gap-2 pt-0.5 font-mono text-[11px] tabular-nums text-muted-foreground">
+        <div className="flex items-center gap-1.5 pt-0.5 font-mono text-[11px] tabular-nums text-muted-foreground">
           <span className="inline-flex items-center gap-1">
             <Clock className="size-3" />
             {formatDuration(result.durationSeconds)}
           </span>
+          <span className="text-border">·</span>
           <span>{result.shots ?? 0}×</span>
         </div>
       </div>
@@ -833,13 +836,13 @@ function ResultCell({
         />
       </div>
 
-      <div className="grid grid-cols-3 divide-x divide-border overflow-hidden rounded-md border">
+      <div className="grid grid-cols-3 gap-2 border-t pt-2">
         {RUBRIC_ITEMS.map((item) => (
-          <div key={item.key} className="px-2 py-1.5 text-center">
-            <div className="font-mono text-sm font-medium tabular-nums">
+          <div key={item.key} className="text-center">
+            <div className="font-mono text-sm font-medium leading-none tabular-nums">
               {result[item.key] ?? "—"}
             </div>
-            <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
+            <div className="mt-1 text-[10px] uppercase tracking-wide text-muted-foreground">
               {item.shortLabel}
             </div>
           </div>
