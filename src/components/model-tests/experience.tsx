@@ -1,58 +1,44 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { X } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { useMemo, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 import {
   resultKey,
   type ModelTestAttachment,
   type ModelTestChallenge,
   type ModelTestModel,
   type ModelTestResult,
-  type ModelTestWorkspace,
 } from "@/lib/model-tests";
-import { AdminPanel, EmptyState, LoadingState } from "./panels";
+import { BoardHeader } from "./board-header";
+import { useBoard } from "./board-context";
+import { LoadingState } from "./panels";
 import { ResultsMatrix } from "./matrix";
 import { SummaryPanel } from "./summary";
 import { ResultDialog } from "./result-dialog";
-import type { BoardActions, TestPrompt } from "./types";
 
-export function ModelTestExperience({
-  systemPrompts,
-  workspace,
-  isLoading,
-  actions,
-}: {
-  systemPrompts: TestPrompt[];
-  workspace: ModelTestWorkspace;
-  isLoading: boolean;
-  actions: BoardActions;
-}) {
-  const [selectedSuiteId, setSelectedSuiteId] = useState<string | null>(null);
+const backLink = (
+  <Link
+    href="/prompts/test"
+    className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+  >
+    <ArrowLeft className="size-4" />
+    All suites
+  </Link>
+);
+
+export function ModelTestExperience({ suiteId }: { suiteId: string }) {
+  const { systemPrompts, workspace, isLoading, actions, busy, run } = useBoard();
+  const router = useRouter();
   const [editingResult, setEditingResult] = useState<{
     challenge: ModelTestChallenge;
     model: ModelTestModel;
     result?: ModelTestResult;
   } | null>(null);
-  const [notice, setNotice] = useState<{
-    kind: "error" | "success";
-    message: string;
-  } | null>(null);
-  const [busy, setBusy] = useState(false);
 
-  useEffect(() => {
-    if (
-      selectedSuiteId &&
-      workspace.suites.some((suite) => suite._id === selectedSuiteId)
-    ) {
-      return;
-    }
-    setSelectedSuiteId(workspace.suites[0]?._id ?? null);
-  }, [selectedSuiteId, workspace.suites]);
+  const selectedSuite = workspace.suites.find((suite) => suite._id === suiteId);
 
-  const selectedSuite = workspace.suites.find(
-    (suite) => suite._id === selectedSuiteId,
-  );
   const suiteModelLinks = useMemo(
     () =>
       selectedSuite
@@ -92,31 +78,12 @@ export function ModelTestExperience({
   }, [workspace.attachments]);
   const canWrite = !actions.adminRequired || actions.isAdmin;
 
-  async function run(
-    task: () => Promise<void>,
-    successMessage?: string,
-  ): Promise<void> {
-    void successMessage;
-    setBusy(true);
-    setNotice(null);
-    try {
-      await task();
-    } catch (error) {
-      setNotice({
-        kind: "error",
-        message:
-          error instanceof Error ? error.message : "The action could not run.",
-      });
-    } finally {
-      setBusy(false);
-    }
-  }
-
   const selectedChallengeIds = new Set(
     challenges.map((challenge) => challenge._id),
   );
   const completedResults = selectedSuite
-    ? workspace.results.filter((result) => result.suiteId === selectedSuite._id)
+    ? workspace.results
+        .filter((result) => result.suiteId === selectedSuite._id)
         .filter(
           (result) =>
             selectedChallengeIds.has(result.challengeId) &&
@@ -131,159 +98,90 @@ export function ModelTestExperience({
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-col gap-3 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-semibold tracking-tight">Model tests</h1>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="flex items-center gap-0.5 rounded-lg border bg-card p-0.5">
-            <StatusPill
-              active={actions.mode === "convex"}
-              label={actions.mode === "convex" ? "Convex" : "Local"}
-            />
-            <span className="h-4 w-px bg-border" />
-            <StatusPill
-              active={actions.uploadsConfigured}
-              label={actions.uploadsConfigured ? "Uploads" : "No uploads"}
-            />
-          </div>
-          <AdminPanel actions={actions} onNotice={setNotice} />
-        </div>
-      </header>
-
-      {notice?.kind === "error" && (
-        <div
-          className={cn(
-            "flex items-start gap-2 rounded-lg border px-3 py-2 text-sm",
-            "border-destructive/30 bg-destructive/5 text-destructive",
-          )}
-        >
-          <X className="mt-0.5 size-4 shrink-0" />
-          <span>{notice.message}</span>
-        </div>
-      )}
+      <BoardHeader left={backLink} />
 
       {isLoading ? (
         <LoadingState />
-      ) : workspace.suites.length === 0 ? (
-        <EmptyState
-          canWrite={canWrite}
-          busy={busy}
-          onSeed={() =>
-            run(async () => {
-              const suiteId = await actions.seedStarterSuite();
-              if (suiteId) setSelectedSuiteId(String(suiteId));
-            }, "Suite created.")
-          }
-        />
+      ) : !selectedSuite ? (
+        <SuiteNotFound />
       ) : (
         <main className="min-w-0 space-y-5">
-          {selectedSuite ? (
-            <>
-              <ResultsMatrix
-                suites={workspace.suites}
-                selectedSuite={selectedSuite}
-                selectedModels={selectedModels}
-                availableModels={availableModels}
-                challenges={challenges}
-                systemPrompts={systemPrompts}
-                resultsByKey={resultsByKey}
-                attachmentsByResult={attachmentsByResult}
-                canWrite={canWrite}
-                busy={busy}
-                completion={completion}
-                resultCount={completedResults.length}
-                onSelectSuite={setSelectedSuiteId}
-                onCreateSuite={() =>
-                  run(async () => {
-                    const suiteId = await actions.createSuite({
-                      title: "Untitled model test",
-                    });
-                    if (suiteId) setSelectedSuiteId(String(suiteId));
-                  }, "Suite created.")
-                }
-                onDeleteSuite={() =>
-                  run(async () => {
-                    await actions.deleteSuite(selectedSuite._id);
-                    const nextSuite = workspace.suites.find(
-                      (suite) => suite._id !== selectedSuite._id,
-                    );
-                    setSelectedSuiteId(nextSuite?._id ?? null);
-                  }, "Suite deleted.")
-                }
-                onUpdateSuite={(input) =>
-                  run(
-                    async () => actions.updateSuite(selectedSuite._id, input),
-                    "Suite updated.",
-                  )
-                }
-                onCreateModel={(input) =>
-                  run(async () => {
-                    const modelId = await actions.createModel(input);
-                    if (!modelId) return;
-                    await actions.setSuiteModels(selectedSuite._id, [
-                      ...selectedModels.map((model) => model._id),
-                      String(modelId),
-                    ]);
-                  }, "Model added.")
-                }
-                onUpdateModel={(modelId, input) =>
-                  run(
-                    async () => actions.updateModel(modelId, input),
-                    "Model updated.",
-                  )
-                }
-                onRemoveModel={(modelId) =>
-                  run(async () => {
-                    await actions.setSuiteModels(
-                      selectedSuite._id,
-                      selectedModels
-                        .map((model) => model._id)
-                        .filter((id) => id !== modelId),
-                    );
-                  }, "Model removed.")
-                }
-                onAddExistingModel={(modelId) =>
-                  run(async () => {
-                    await actions.setSuiteModels(selectedSuite._id, [
-                      ...selectedModels.map((model) => model._id),
-                      modelId,
-                    ]);
-                  }, "Model added.")
-                }
-                onCreateChallenge={(input) =>
-                  run(
-                    async () =>
-                      actions.createChallenge({
-                        suiteId: selectedSuite._id,
-                        ...input,
-                      }),
-                    "Challenge added.",
-                  )
-                }
-                onEdit={(challenge, model, result) =>
-                  setEditingResult({ challenge, model, result })
-                }
-                onDeleteChallenge={(challengeId) =>
-                  run(
-                    async () => actions.deleteChallenge(challengeId),
-                    "Challenge deleted.",
-                  )
-                }
-                onUpdateChallenge={(challengeId, input) =>
-                  run(
-                    async () => actions.updateChallenge(challengeId, input),
-                    "Challenge updated.",
-                  )
-                }
-              />
-              <SummaryPanel
-                suite={selectedSuite}
-                selectedModels={selectedModels}
-                challenges={challenges}
-                results={completedResults}
-              />
-            </>
-          ) : null}
+          <ResultsMatrix
+            selectedSuite={selectedSuite}
+            selectedModels={selectedModels}
+            availableModels={availableModels}
+            challenges={challenges}
+            systemPrompts={systemPrompts}
+            resultsByKey={resultsByKey}
+            attachmentsByResult={attachmentsByResult}
+            canWrite={canWrite}
+            busy={busy}
+            completion={completion}
+            resultCount={completedResults.length}
+            onDeleteSuite={() =>
+              run(async () => {
+                await actions.deleteSuite(selectedSuite._id);
+                router.push("/prompts/test");
+              })
+            }
+            onUpdateSuite={(input) =>
+              run(async () => actions.updateSuite(selectedSuite._id, input))
+            }
+            onCreateModel={(input) =>
+              run(async () => {
+                const modelId = await actions.createModel(input);
+                if (!modelId) return;
+                await actions.setSuiteModels(selectedSuite._id, [
+                  ...selectedModels.map((model) => model._id),
+                  String(modelId),
+                ]);
+              })
+            }
+            onUpdateModel={(modelId, input) =>
+              run(async () => actions.updateModel(modelId, input))
+            }
+            onRemoveModel={(modelId) =>
+              run(async () =>
+                actions.setSuiteModels(
+                  selectedSuite._id,
+                  selectedModels
+                    .map((model) => model._id)
+                    .filter((id) => id !== modelId),
+                ),
+              )
+            }
+            onAddExistingModel={(modelId) =>
+              run(async () =>
+                actions.setSuiteModels(selectedSuite._id, [
+                  ...selectedModels.map((model) => model._id),
+                  modelId,
+                ]),
+              )
+            }
+            onCreateChallenge={(input) =>
+              run(async () =>
+                actions.createChallenge({
+                  suiteId: selectedSuite._id,
+                  ...input,
+                }),
+              )
+            }
+            onEdit={(challenge, model, result) =>
+              setEditingResult({ challenge, model, result })
+            }
+            onDeleteChallenge={(challengeId) =>
+              run(async () => actions.deleteChallenge(challengeId))
+            }
+            onUpdateChallenge={(challengeId, input) =>
+              run(async () => actions.updateChallenge(challengeId, input))
+            }
+          />
+          <SummaryPanel
+            suite={selectedSuite}
+            selectedModels={selectedModels}
+            challenges={challenges}
+            results={completedResults}
+          />
         </main>
       )}
 
@@ -302,37 +200,36 @@ export function ModelTestExperience({
           run(async () => {
             await actions.saveResult(input, files);
             setEditingResult(null);
-          }, "Result saved.")
+          })
         }
         onDelete={(resultId) =>
           run(async () => {
             await actions.deleteResult(resultId);
             setEditingResult(null);
-          }, "Result deleted.")
+          })
         }
         onRemoveAttachment={(attachmentId) =>
-          run(
-            async () => actions.removeAttachment(attachmentId),
-            "Shot removed.",
-          )
+          run(async () => actions.removeAttachment(attachmentId))
         }
       />
     </div>
   );
 }
 
-function StatusPill({ active, label }: { active: boolean; label: string }) {
+function SuiteNotFound() {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium">
-      <span
-        className={cn(
-          "size-1.5 rounded-full",
-          active ? "bg-emerald-500" : "bg-muted-foreground/40",
-        )}
-      />
-      <span className={active ? "text-foreground" : "text-muted-foreground"}>
-        {label}
-      </span>
-    </span>
+    <div className="flex min-h-80 flex-col items-center justify-center rounded-xl border border-dashed px-6 py-12 text-center">
+      <h2 className="text-lg font-semibold tracking-tight">Suite not found</h2>
+      <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">
+        This test suite no longer exists or has not loaded yet.
+      </p>
+      <Link
+        href="/prompts/test"
+        className="mt-5 inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline-offset-4 hover:underline"
+      >
+        <ArrowLeft className="size-4" />
+        Back to all suites
+      </Link>
+    </div>
   );
 }

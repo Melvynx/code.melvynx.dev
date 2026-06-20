@@ -6,7 +6,7 @@ import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
 import { ConvexClientProvider } from "@/components/convex-client-provider";
 import { emptyWorkspace, normalizeWorkspace, type ModelTestWorkspace } from "@/lib/model-tests";
-import { ModelTestExperience } from "./experience";
+import { BoardProviderShell } from "./board-context";
 import type { BoardActions, TestPrompt } from "./types";
 import { fileToBase64 } from "./utils";
 
@@ -32,6 +32,7 @@ function asAttachmentId(id: string) {
 
 type Props = {
   systemPrompts: TestPrompt[];
+  children: React.ReactNode;
 };
 
 function toWorkspace(value: unknown): ModelTestWorkspace {
@@ -70,15 +71,17 @@ function toWorkspace(value: unknown): ModelTestWorkspace {
   };
 }
 
-export function ConvexModelTestBoard({ systemPrompts }: Props) {
+export function ConvexBoardProvider({ systemPrompts, children }: Props) {
   return (
     <ConvexClientProvider>
-      <ConvexModelTestBoardContent systemPrompts={systemPrompts} />
+      <ConvexModelTestBoardContent systemPrompts={systemPrompts}>
+        {children}
+      </ConvexModelTestBoardContent>
     </ConvexClientProvider>
   );
 }
 
-function ConvexModelTestBoardContent({ systemPrompts }: Props) {
+function ConvexModelTestBoardContent({ systemPrompts, children }: Props) {
   const config = useQuery(api.modelTests.publicConfig);
   const workspace = useQuery(api.modelTests.listWorkspace);
   const verifyAdminPassword = useMutation(api.modelTests.verifyAdminPassword);
@@ -250,11 +253,13 @@ function ConvexModelTestBoardContent({ systemPrompts }: Props) {
   };
 
   return (
-    <ModelTestExperience
+    <BoardProviderShell
       systemPrompts={systemPrompts}
       workspace={toWorkspace(workspace)}
       isLoading={workspace === undefined || config === undefined}
       actions={actions}
-    />
+    >
+      {children}
+    </BoardProviderShell>
   );
 }

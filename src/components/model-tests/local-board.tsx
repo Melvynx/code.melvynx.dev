@@ -11,7 +11,7 @@ import {
   type ModelTestResult,
   type ModelTestWorkspace,
 } from "@/lib/model-tests";
-import { ModelTestExperience } from "./experience";
+import { BoardProviderShell } from "./board-context";
 import type { BoardActions, TestPrompt } from "./types";
 import { compactText, fileToDataUrl } from "./utils";
 
@@ -20,9 +20,10 @@ const MAX_LOCAL_WORKSPACE_BYTES = 4 * 1024 * 1024;
 
 type Props = {
   systemPrompts: TestPrompt[];
+  children: React.ReactNode;
 };
 
-export function LocalModelTestBoard({ systemPrompts }: Props) {
+export function LocalBoardProvider({ systemPrompts, children }: Props) {
   const [workspace, setWorkspace] = useState<ModelTestWorkspace>(emptyWorkspace);
   const workspaceRef = useRef<ModelTestWorkspace>(emptyWorkspace);
   const [loaded, setLoaded] = useState(false);
@@ -395,11 +396,13 @@ export function LocalModelTestBoard({ systemPrompts }: Props) {
   };
 
   return (
-    <ModelTestExperience
+    <BoardProviderShell
       systemPrompts={systemPrompts}
       workspace={workspace}
       isLoading={!loaded}
       actions={actions}
-    />
+    >
+      {children}
+    </BoardProviderShell>
   );
 }

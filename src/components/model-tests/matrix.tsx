@@ -20,18 +20,13 @@ import {
 import { cn } from "@/lib/utils";
 import type { TestPrompt } from "./types";
 import { compactText } from "./utils";
+import { STATUS_META } from "./board-header";
 
 const selectClassName =
   "h-8 rounded-md border border-input bg-background px-2.5 text-sm shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50";
 
 const inlineFieldClassName =
   "border-transparent bg-transparent px-2 shadow-none hover:bg-muted/60 focus-visible:bg-background dark:bg-transparent dark:hover:bg-muted/60";
-
-const STATUS_META: Record<ModelTestStatus, { label: string; dot: string }> = {
-  draft: { label: "Draft", dot: "bg-muted-foreground/40" },
-  running: { label: "Running", dot: "bg-amber-500" },
-  complete: { label: "Complete", dot: "bg-emerald-500" },
-};
 
 type ModelInput = {
   name: string;
@@ -46,7 +41,6 @@ type SuiteInput = {
 };
 
 export function ResultsMatrix({
-  suites,
   selectedSuite,
   selectedModels,
   availableModels,
@@ -58,8 +52,6 @@ export function ResultsMatrix({
   busy,
   completion,
   resultCount,
-  onSelectSuite,
-  onCreateSuite,
   onDeleteSuite,
   onUpdateSuite,
   onCreateModel,
@@ -71,7 +63,6 @@ export function ResultsMatrix({
   onDeleteChallenge,
   onUpdateChallenge,
 }: {
-  suites: ModelTestSuite[];
   selectedSuite: ModelTestSuite;
   selectedModels: ModelTestModel[];
   availableModels: ModelTestModel[];
@@ -83,8 +74,6 @@ export function ResultsMatrix({
   busy: boolean;
   completion: number;
   resultCount: number;
-  onSelectSuite: (suiteId: string) => void;
-  onCreateSuite: () => void;
   onDeleteSuite: () => void;
   onUpdateSuite: (input: SuiteInput) => void;
   onCreateModel: (input: ModelInput) => void;
@@ -113,15 +102,12 @@ export function ResultsMatrix({
     <section className="overflow-hidden rounded-xl border bg-card">
       <SuiteToolbar
         key={selectedSuite._id}
-        suites={suites}
         selectedSuite={selectedSuite}
         canWrite={canWrite}
         busy={busy}
         completion={completion}
         resultCount={resultCount}
         expectedResults={expectedResults}
-        onSelectSuite={onSelectSuite}
-        onCreateSuite={onCreateSuite}
         onDeleteSuite={onDeleteSuite}
         onUpdateSuite={onUpdateSuite}
       />
@@ -234,27 +220,21 @@ export function ResultsMatrix({
 }
 
 function SuiteToolbar({
-  suites,
   selectedSuite,
   canWrite,
   busy,
   completion,
   resultCount,
   expectedResults,
-  onSelectSuite,
-  onCreateSuite,
   onDeleteSuite,
   onUpdateSuite,
 }: {
-  suites: ModelTestSuite[];
   selectedSuite: ModelTestSuite;
   canWrite: boolean;
   busy: boolean;
   completion: number;
   resultCount: number;
   expectedResults: number;
-  onSelectSuite: (suiteId: string) => void;
-  onCreateSuite: () => void;
   onDeleteSuite: () => void;
   onUpdateSuite: (input: SuiteInput) => void;
 }) {
@@ -268,60 +248,42 @@ function SuiteToolbar({
   }
 
   return (
-    <div className="flex flex-col gap-4 border-b bg-muted/30 p-4 lg:flex-row lg:items-start lg:justify-between">
-      <div className="flex min-w-0 flex-1 flex-col gap-2.5">
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span className="font-medium uppercase tracking-wide">Suite</span>
-          <select
-            value={selectedSuite._id}
-            onChange={(event) => onSelectSuite(event.target.value)}
-            className={cn(selectClassName, "h-7 max-w-[260px] text-xs")}
-            aria-label="Select suite"
-          >
-            {suites.map((suite) => (
-              <option key={suite._id} value={suite._id}>
-                {suite.title}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <Input
-            value={title}
-            onChange={(event) => setTitle(event.target.value)}
-            onBlur={saveTitle}
-            onKeyDown={(event) => {
-              if (event.key === "Enter") event.currentTarget.blur();
-            }}
-            disabled={!canWrite || busy}
-            aria-label="Suite name"
+    <div className="flex flex-col gap-4 border-b bg-muted/30 p-4 lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+        <Input
+          value={title}
+          onChange={(event) => setTitle(event.target.value)}
+          onBlur={saveTitle}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") event.currentTarget.blur();
+          }}
+          disabled={!canWrite || busy}
+          aria-label="Suite name"
+          className={cn(
+            inlineFieldClassName,
+            "h-9 w-full max-w-md text-lg font-semibold tracking-tight",
+          )}
+        />
+        <div className="relative">
+          <span
             className={cn(
-              inlineFieldClassName,
-              "h-9 w-full max-w-md text-lg font-semibold tracking-tight",
+              "pointer-events-none absolute left-2.5 top-1/2 size-2 -translate-y-1/2 rounded-full",
+              status.dot,
             )}
           />
-          <div className="relative">
-            <span
-              className={cn(
-                "pointer-events-none absolute left-2.5 top-1/2 size-2 -translate-y-1/2 rounded-full",
-                status.dot,
-              )}
-            />
-            <select
-              value={selectedSuite.status}
-              disabled={!canWrite || busy}
-              onChange={(event) =>
-                onUpdateSuite({ status: event.target.value as ModelTestStatus })
-              }
-              className={cn(selectClassName, "h-8 w-[130px] pl-6")}
-              aria-label="Suite status"
-            >
-              <option value="draft">Draft</option>
-              <option value="running">Running</option>
-              <option value="complete">Complete</option>
-            </select>
-          </div>
+          <select
+            value={selectedSuite.status}
+            disabled={!canWrite || busy}
+            onChange={(event) =>
+              onUpdateSuite({ status: event.target.value as ModelTestStatus })
+            }
+            className={cn(selectClassName, "h-8 w-[130px] pl-6")}
+            aria-label="Suite status"
+          >
+            <option value="draft">Draft</option>
+            <option value="running">Running</option>
+            <option value="complete">Complete</option>
+          </select>
         </div>
       </div>
 
@@ -346,29 +308,17 @@ function SuiteToolbar({
           </span>
         </div>
 
-        <div className="flex items-center gap-1">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            disabled={!canWrite || busy}
-            onClick={onCreateSuite}
-          >
-            <Plus className="size-4" />
-            New suite
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            disabled={!canWrite || busy || suites.length <= 1}
-            onClick={onDeleteSuite}
-            aria-label={`Delete ${selectedSuite.title}`}
-            className="text-muted-foreground hover:text-destructive"
-          >
-            <Trash2 className="size-4" />
-          </Button>
-        </div>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          disabled={!canWrite || busy}
+          onClick={onDeleteSuite}
+          aria-label={`Delete ${selectedSuite.title}`}
+          className="text-muted-foreground hover:text-destructive"
+        >
+          <Trash2 className="size-4" />
+        </Button>
       </div>
     </div>
   );

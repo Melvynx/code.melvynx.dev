@@ -1,24 +1,33 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { LocalModelTestBoard } from "@/components/model-tests/local-board";
+import { LocalBoardProvider } from "@/components/model-tests/local-board";
 import type { TestPrompt } from "@/components/model-tests/types";
 
 const hasConvex = Boolean(process.env.NEXT_PUBLIC_CONVEX_URL);
-const ConvexModelTestBoard = dynamic(() =>
+const ConvexBoardProvider = dynamic(() =>
   import("@/components/model-tests/convex-board").then(
-    (module) => module.ConvexModelTestBoard,
+    (module) => module.ConvexBoardProvider,
   ),
 );
 
 type Props = {
   systemPrompts: TestPrompt[];
+  children: React.ReactNode;
 };
 
-export function ModelTestBoard({ systemPrompts }: Props) {
+export function BoardProvider({ systemPrompts, children }: Props) {
   if (hasConvex) {
-    return <ConvexModelTestBoard systemPrompts={systemPrompts} />;
+    return (
+      <ConvexBoardProvider systemPrompts={systemPrompts}>
+        {children}
+      </ConvexBoardProvider>
+    );
   }
 
-  return <LocalModelTestBoard systemPrompts={systemPrompts} />;
+  return (
+    <LocalBoardProvider systemPrompts={systemPrompts}>
+      {children}
+    </LocalBoardProvider>
+  );
 }
