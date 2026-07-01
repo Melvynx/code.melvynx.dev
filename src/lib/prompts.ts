@@ -41,6 +41,11 @@ const PROMPT_META: Record<string, { name: string; description: string }> = {
     description:
       "Single-file canvas physics experiment where a car crashes into a configurable brick wall with realistic momentum, mass, friction, and collapse behavior.",
   },
+  "thumbfast-drawing-inspiration-editor": {
+    name: "Thumbfast Drawing Inspiration Editor",
+    description:
+      "Implement a full drawing-template editor in Thumbfast so users can create, save, edit, and reuse drawn thumbnail inspirations.",
+  },
 };
 
 export function getAllPrompts(): PromptEntry[] {
