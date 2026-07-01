@@ -36,6 +36,11 @@ const PROMPT_META: Record<string, { name: string; description: string }> = {
     description:
       "Build the most complete, polished, architecturally sound mini-Figma clone possible in one shot - infinite canvas, scene graph, command-pattern undo, and production-grade code quality.",
   },
+  "car-brick-wall-crash": {
+    name: "Car Brick Wall Crash",
+    description:
+      "Single-file canvas physics experiment where a car crashes into a configurable brick wall with realistic momentum, mass, friction, and collapse behavior.",
+  },
 };
 
 export function getAllPrompts(): PromptEntry[] {
