@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import { Sparkles } from "lucide-react";
@@ -22,6 +22,25 @@ export const metadata: Metadata = {
   title: "AI Coding Tools - System Prompts & Documentation",
   description:
     "Compare system prompts, tools, and capabilities of AI coding assistants: Claude Code, Cursor, Codex, Droid, and Antigravity.",
+  applicationName: "AI Coding Tools",
+  manifest: "/site.webmanifest",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
+  appleWebApp: {
+    title: "AI Coding Tools",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0f172a",
 };
 
 export default function RootLayout({
