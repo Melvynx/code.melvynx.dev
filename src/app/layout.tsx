@@ -1,9 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
-import { Sparkles } from "lucide-react";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AppSidebar, MobileSidebar } from "@/components/app-sidebar";
+import { BrandIcon } from "@/components/brand-icon";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { HeaderSearch } from "@/components/header-search";
 import "./globals.css";
@@ -61,7 +61,7 @@ export default function RootLayout({
                 href="/"
                 className="flex items-center gap-2"
               >
-                <Sparkles className="size-5 text-primary" />
+                <BrandIcon priority />
                 <span className="text-sm font-semibold tracking-tight">
                   AI Coding Tools
                 </span>

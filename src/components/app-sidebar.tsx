@@ -8,11 +8,11 @@ import {
   Home,
   MousePointerClick,
   Terminal,
-  Sparkles,
   Menu,
   FlaskConical,
   BarChart3,
 } from "lucide-react";
+import { BrandIcon } from "@/components/brand-icon";
 import { cn } from "@/lib/utils";
 import {
   Sheet,
@@ -171,7 +171,7 @@ export function MobileSidebar() {
       <SheetContent side="left" className="w-64 p-0">
         <SheetHeader className="border-b px-4 py-3">
           <SheetTitle className="flex items-center gap-2 text-sm">
-            <Sparkles className="size-4 text-primary" />
+            <BrandIcon className="size-5 rounded-md" />
             AI Coding Tools
           </SheetTitle>
         </SheetHeader>
