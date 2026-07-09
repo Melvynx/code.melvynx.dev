@@ -41,6 +41,11 @@ const PROMPT_META: Record<string, { name: string; description: string }> = {
     description:
       "Single-file canvas physics experiment where a car crashes into a configurable brick wall with realistic momentum, mass, friction, and collapse behavior.",
   },
+  "ecosystem-evolution-simulator": {
+    name: "Ecosystem Evolution Simulator",
+    description:
+      "Single-file artificial-life simulator with predator/prey/food energy dynamics, a round rotating 3D map, cute animated agents, live controls, and real population graphs.",
+  },
   "thumbfast-drawing-inspiration-editor": {
     name: "Thumbfast Drawing Inspiration Editor",
     description:
