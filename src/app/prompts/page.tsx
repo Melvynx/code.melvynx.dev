@@ -17,7 +17,7 @@ export default function PromptsPage() {
         {prompts.map((prompt) => (
           <Link
             key={prompt.slug}
-            href={`/prompts/${prompt.slug}/v1`}
+            href={`/prompts/${prompt.slug}`}
             className="rounded-lg border p-5 hover:bg-muted/50 transition-colors block"
           >
             <div className="flex items-start justify-between gap-4">

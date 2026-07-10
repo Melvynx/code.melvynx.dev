@@ -1,5 +1,9 @@
 import { redirect } from "next/navigation";
-import { getPromptBySlug, getAllPrompts } from "@/lib/prompts";
+import {
+  getAllPrompts,
+  getLatestPromptVersion,
+  getPromptBySlug,
+} from "@/lib/prompts";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -17,5 +21,10 @@ export default async function PromptPage({ params }: PageProps) {
     redirect("/prompts");
   }
 
-  redirect(`/prompts/${slug}/${prompt.versions[0].version}`);
+  const latestVersion = getLatestPromptVersion(prompt);
+  if (!latestVersion) {
+    redirect("/prompts");
+  }
+
+  redirect(`/prompts/${slug}/${latestVersion}`);
 }

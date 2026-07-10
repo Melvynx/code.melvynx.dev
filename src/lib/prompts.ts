@@ -13,6 +13,8 @@ export interface PromptEntry {
   versions: { version: string }[];
 }
 
+const versionCollator = new Intl.Collator("en", { numeric: true });
+
 const CONTENT_DIR = join(process.cwd(), "content/prompts");
 
 const PROMPT_META: Record<string, { name: string; description: string }> = {
@@ -63,7 +65,7 @@ export function getAllPrompts(): PromptEntry[] {
       const versions = readdirSync(dir)
         .filter((f) => f.endsWith(".md"))
         .map((f) => ({ version: f.replace(".md", "") }))
-        .sort((a, b) => a.version.localeCompare(b.version));
+        .sort((a, b) => versionCollator.compare(a.version, b.version));
       const meta = PROMPT_META[slug] ?? { name: slug, description: "" };
       return { slug, ...meta, versions };
     });
@@ -71,6 +73,10 @@ export function getAllPrompts(): PromptEntry[] {
 
 export function getPromptBySlug(slug: string): PromptEntry | null {
   return getAllPrompts().find((p) => p.slug === slug) ?? null;
+}
+
+export function getLatestPromptVersion(prompt: PromptEntry): string | null {
+  return prompt.versions.at(-1)?.version ?? null;
 }
 
 export function getPromptVersion(
