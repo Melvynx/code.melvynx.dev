@@ -53,6 +53,11 @@ const PROMPT_META: Record<string, { name: string; description: string }> = {
     description:
       "Implement a full drawing-template editor in Thumbfast so users can create, save, edit, and reuse drawn thumbnail inspirations.",
   },
+  "elysian-taste-challenge": {
+    name: "Elysian Taste Challenge",
+    description:
+      "An intentionally open-ended landing-page benchmark that tests visual taste, originality, art direction, and creative use of a bold botanical image.",
+  },
 };
 
 export function getAllPrompts(): PromptEntry[] {
