@@ -61,7 +61,7 @@ const PROMPT_META: Record<string, { name: string; description: string }> = {
   "earthquake-explorer": {
     name: "Earthquake Explorer",
     description:
-      "Build a distinctive, accessible live earthquake observatory using the free USGS GeoJSON API, with synchronized map, timeline, event stream, filters, and resilient data states.",
+      "Build a live earthquake explorer with a real map, accurately positioned individual events, multiple exploration choices, visible colors, and interactive details.",
   },
 };
 
