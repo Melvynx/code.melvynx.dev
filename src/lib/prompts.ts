@@ -58,6 +58,11 @@ const PROMPT_META: Record<string, { name: string; description: string }> = {
     description:
       "An intentionally open-ended landing-page benchmark that tests visual taste, originality, art direction, and creative use of a bold botanical image.",
   },
+  "earthquake-explorer": {
+    name: "Earthquake Explorer",
+    description:
+      "Build a distinctive, accessible live earthquake observatory using the free USGS GeoJSON API, with synchronized map, timeline, event stream, filters, and resilient data states.",
+  },
 };
 
 export function getAllPrompts(): PromptEntry[] {
